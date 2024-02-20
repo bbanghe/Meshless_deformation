@@ -15,9 +15,9 @@
 extern Program program;
 
 struct Plane {
-    GLuint vertexBuffer = 0;
-    GLuint vertexArray = 0;
-    GLuint elementBuffer = 0;
+    GLuint PlaneVBO = 0;
+    GLuint PlaneVAO = 0;
+    GLuint PlaneEBO = 0;
 
     std::vector<unsigned int> indices;
 
@@ -67,15 +67,15 @@ struct Plane {
 
     void setupPlane() {
         
-        glGenVertexArrays(1, &vertexArray);
-        glBindVertexArray(vertexArray);
+        glGenVertexArrays(1, &PlaneVAO);
+        glBindVertexArray(PlaneVAO);
 
-        glGenBuffers(1, &vertexBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        glGenBuffers(1, &PlaneVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, PlaneVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(plane_vertices), plane_vertices, GL_STATIC_DRAW);
 
-        glGenBuffers(1, &elementBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+        glGenBuffers(1, &PlaneEBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, PlaneEBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(plane_indices), plane_indices, GL_STATIC_DRAW);
 
         // vertex Positions
@@ -88,7 +88,7 @@ struct Plane {
     }
 
     void render() {
-        if (vertexBuffer == 0) setupPlane();
+        if (PlaneVBO == 0) setupPlane();
 
         GLuint TexOrColorLocation = glGetUniformLocation(program.programID, "TexOrColor");
         glUniform1i(TexOrColorLocation, 0); // true이면 1, false이면 0
@@ -96,7 +96,7 @@ struct Plane {
         GLuint colorLocation = glGetUniformLocation(program.programID, "color");
         glUniform4fv(colorLocation, 1, glm::value_ptr(color));
 
-        glBindVertexArray(vertexArray);
+        glBindVertexArray(PlaneVAO);
         glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 

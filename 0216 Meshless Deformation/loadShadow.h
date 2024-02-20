@@ -28,8 +28,16 @@ struct Shadow
 	GLuint shadowTex = 0;
 	GLuint shadowDepth = 0;
 
+	glm::mat4 shadowViewMat;
+	glm::mat4 shadowProjMat;
+	glm::mat4 shadowMVP;
+
+	GLuint shadowMVPLocation = 0;
+
+
+
 	Shadow(glm::vec3 _lightPosition, glm::vec3 _lightColor, glm::vec3 _ambientLight) :lightPosition(_lightPosition), lightColor(_lightColor), ambientLight(_ambientLight) {
-		setupShadow();
+		
 	}
 
 	void setupShadow() {
@@ -74,29 +82,34 @@ struct Shadow
 	void render() {
 		if(shadowFBO == 0)
 			setupShadow();
-		//shadow map
-		glm::mat4 shadowViewMat = glm::lookAt(lightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-		glm::mat4 shadowProjMat = glm::ortho(-200.f, 200.f, -200.f, 200.f, 1.0f, 2000.f); 
-		//좌우아래위, 가까운 평면과 먼 평면의 크기,가까운 평면과 먼 평면 사이의 거리
-		glm::mat4 shadowMVP = shadowProjMat * shadowViewMat;
+
+		//shadow map create
+		shadowViewMat = glm::lookAt(lightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+		float near_plane = 1.0f;
+		float far_plane = 2000.0f;
+		shadowProjMat = glm::ortho(-200.f, 200.f, -200.f, 200.f, near_plane, far_plane);
+		shadowMVP = shadowProjMat * shadowViewMat;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 		glViewport(0, 0, 1024, 1024);
-		glClearColor(1, 1, 1, 1); //shadow color
+		glClearColor(0, 0, 0, 0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+
 		glUseProgram(shadowProgram.programID);
-		GLuint shadowMVPLocation = glGetUniformLocation(shadowProgram.programID, "shadowMVP");
+		shadowMVPLocation = glGetUniformLocation(shadowProgram.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
-		
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		////map create done
+
+
 		shadowMVPLocation = glGetUniformLocation(program.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
 
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, shadowTex);
-		GLuint shadowTexLocation = glGetUniformLocation(program.programID, "shadowTex");
-		glUniform1i(shadowTexLocation, 4);
-		glBindVertexArray(0);
 
 	}
 

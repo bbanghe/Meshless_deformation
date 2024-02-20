@@ -3,33 +3,25 @@
 out vec4 out_Color;
 uniform vec4 color;
 
-uniform vec3 lightPosition=vec3(0,0,0);
-uniform vec3 lightColor=vec3(0);
-uniform vec3 ambientLight = vec3(0.0);
-
-/*
-uniform vec3 lightPosition=vec3(200,300,300);
-uniform vec3 lightColor=vec3(100000);
-uniform vec3 ambientLight = vec3(0.0);
-*/
+uniform vec3 lightPosition;
+uniform vec3 lightColor;
+uniform vec3 ambientLight;
 
 uniform float shininess = 0.0f;
 uniform vec3 cameraPosition;
 uniform int TexOrColor = 0;
 
 //texture
-uniform sampler2D diffuseMap;
-uniform sampler2D specularMap;
-uniform sampler2D normalMap;
-uniform sampler2D heightMap;
+uniform sampler2D diffuseTex;
+uniform sampler2D specularTex;
+uniform sampler2D normalTex;
+uniform sampler2D heightTex;
 uniform sampler2D shadowTex;
-
 
 in vec3 normal;
 in vec3 worldPosition;
 in vec2 texCoords;
 in vec4 shadowCoord;
-
 
 mat3 getTBN(vec3 N){
 	vec3 Q1 = dFdx(worldPosition), Q2 = dFdy(worldPosition);
@@ -74,15 +66,14 @@ void main(void)
 
 	//textureÀÇ °æ¿ì
 	if(TexOrColor>0){
-		vec4 Diffuse = texture(diffuseMap,texCoords);
-		vec4 Specular = texture(specularMap,texCoords);
-		vec4 Normal = texture(normalMap,texCoords);
+		vec4 Diffuse = texture(diffuseTex,texCoords);
+		vec4 Specular = texture(specularTex,texCoords);
+		vec4 Normal = texture(normalTex,texCoords);
 
 		final_color = Diffuse.rgb*max(0,dot(L,N))*I+Diffuse.rgb*ambientLight;
 		final_color += pow(dot(R,V),shininess)*I*Specular.rgb;
 		final_color *= visibility;
 		out_Color = vec4(pow(final_color,vec3(1/2.2)),1);
-
 	}
 	else{
 		out_Color = color*visibility;

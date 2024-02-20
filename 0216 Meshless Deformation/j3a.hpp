@@ -63,9 +63,9 @@ extern std::vector<glm::u32vec3*>	triangles;
 extern std::vector<glm::vec4>		diffuseColor;
 extern std::vector<glm::vec3>		specularColor;
 extern std::vector<float>			shininess;
-extern std::vector<std::string>		diffuseMap;
-extern std::vector<std::string>		bumpMap;
-extern std::vector<std::string>		specularMap;
-extern std::vector<std::string>		ambientOcclusionMap;
+extern std::vector<std::string>		diffuseTex;
+extern std::vector<std::string>		bumpTex;
+extern std::vector<std::string>		specularTex;
+extern std::vector<std::string>		ambientOcclusionTex;
 
 #endif /* j3a_hpp */

@@ -97,21 +97,21 @@ inline Mesh processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Texture>
     if (mesh->mMaterialIndex >= 0) {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-        // Diffuse maps
-        std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse", textures_loaded);
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        // Diffuse Texs
+        std::vector<Texture> diffuseTexs = loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse", textures_loaded);
+        textures.insert(textures.end(), diffuseTexs.begin(), diffuseTexs.end());
 
-        // Specular maps
-        std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "specular", textures_loaded);
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        // Specular Texs
+        std::vector<Texture> specularTexs = loadMaterialTextures(material, aiTextureType_SPECULAR, "specular", textures_loaded);
+        textures.insert(textures.end(), specularTexs.begin(), specularTexs.end());
 
-        // Normal maps
-        std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "normal", textures_loaded);
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+        // Normal Texs
+        std::vector<Texture> normalTexs = loadMaterialTextures(material, aiTextureType_HEIGHT, "normal", textures_loaded);
+        textures.insert(textures.end(), normalTexs.begin(), normalTexs.end());
 
-        // Height maps
-        std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "height", textures_loaded);
-        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+        // Height Texs
+        std::vector<Texture> heightTexs = loadMaterialTextures(material, aiTextureType_AMBIENT, "height", textures_loaded);
+        textures.insert(textures.end(), heightTexs.begin(), heightTexs.end());
 
         return Mesh(vertices, indices, textures);
     }

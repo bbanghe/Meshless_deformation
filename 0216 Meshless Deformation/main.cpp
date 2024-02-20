@@ -13,7 +13,7 @@
 #include "mesh.h"
 #include "loadMesh.h"
 #include "plane.h"
-#include "loadShadow.h"
+//#include "loadShadow.h"
 
 #pragma comment (lib, "opengl32")
 #pragma comment (lib, "glfw3")
@@ -52,13 +52,9 @@ void init() {
 
 Plane plane(contact_point, normal_vector);
 
-vec3 lightPosition = vec3(200, 300, 300);
-vec3 lightColor = vec3(100000);
-vec3 ambientLight = vec3(0.0);
 
 
 void render(GLFWwindow* window) {
-    Shadow shadow(lightPosition, lightColor, ambientLight);
 
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
@@ -85,10 +81,9 @@ void render(GLFWwindow* window) {
     for (Mesh& mesh : meshes) {
         for (int i = 0; i < 10; i++) { //¹Ýº¹ -> »¡¸®¼ö·Å => Ãâ··°Å¸®´Â Çö»ó °¨¼Ò
             mesh.update(0.0166f / 10);
-        shadow.render();
-
         }
         mesh.render();
+
     }
 
     glfwSwapBuffers(window);

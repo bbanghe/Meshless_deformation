@@ -18,6 +18,7 @@
 #include "texture.h"
 #include "plane.h"
 #include "camera.h"
+#include "loadShadow.h"
 
 struct Vertex {
     glm::vec3 Position;
@@ -37,10 +38,6 @@ extern glm::vec3 normal_vector = normalize(glm::vec3(0.2f, 1.0f, 0.1f));
 
 
 struct Mesh {
-    glm::vec3 lightPosition = glm::vec3(0); //light의 위치
-    glm::vec3 lightColor = glm::vec3(0); //밝기 정도
-    glm::vec3 ambientLight = glm::vec3(0.f);
-
     GLuint vertexBuffer = 0;
     GLuint vertexArray = 0;
     GLuint elementBuffer = 0;
@@ -61,7 +58,13 @@ struct Mesh {
     std::vector<glm::vec3> origin_point = std::vector<glm::vec3>(0);
 
     glm::vec3 init_height = glm::vec3(0.0f, 600.0f, 0.0f);
-    
+
+    glm::vec3 lightPosition = glm::vec3(200, 300, 300);
+    glm::vec3 lightColor = glm::vec3(100000);
+    glm::vec3 ambientLight = glm::vec3(0.0);
+
+    Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
+
     //constructor
     Mesh(const std::vector<Vertex>& _vertices, const std::vector<unsigned int>& _indices, const std::vector<Texture>& _textures) :vertices(_vertices), indices(_indices), textures(_textures) {
         velocity.resize(vertices.size(), glm::vec3(0));
@@ -136,6 +139,7 @@ struct Mesh {
     }
 
     void update(const float& dt) {
+
         std::vector<glm::vec3> goalPosition(vertices.size());
 
 
@@ -189,6 +193,8 @@ struct Mesh {
         glGenBuffers(1, &vertexBuffer);
         glGenBuffers(1, &elementBuffer);
 
+        shadow.render();
+
         glBindVertexArray(vertexArray);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
@@ -209,9 +215,12 @@ struct Mesh {
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
         glBindVertexArray(0);
+
     }
     void render() {
+
         if (vertexBuffer == 0) setupMesh();
+
 
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
@@ -220,6 +229,7 @@ struct Mesh {
 
         GLuint TexOrColorLocation = glGetUniformLocation(program.programID, "TexOrColor");
         glUniform1i(TexOrColorLocation, 1); // true이면 1, false이면 0
+
 
 
         for (unsigned int i = 0; i < textures.size(); i++)
@@ -236,9 +246,18 @@ struct Mesh {
             else if (name == "height")
                 number = std::to_string(heightNr++);
 
-            glUniform1i(glGetUniformLocation(program.programID, (name + number).c_str()), i);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            glUniform1i(glGetUniformLocation(program.programID, (name + number).c_str()), i);
+
         }
+
+
+
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_2D, shadowTex);
+        GLuint shadowTexLocation = glGetUniformLocation(program.programID, "shadowTex");
+        glUniform1i(shadowTexLocation, 4);
+
 
         glBindVertexArray(vertexArray);
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
