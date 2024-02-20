@@ -12,11 +12,6 @@ extern Program program;
 
 struct Shadow
 {
-	/*
-	vec3 lightPosition=vec3(200,300,300);
-	vec3 lightColor=vec3(100000);
-	vec3 ambientLight = vec3(0.0);
-	*/
 	
 	glm::vec3 lightPosition = glm::vec3(0); //light의 위치
 	glm::vec3 lightColor = glm::vec3(0); //밝기 정도
@@ -27,12 +22,6 @@ struct Shadow
 	GLuint shadowFBO = 0;
 	GLuint shadowTex = 0;
 	GLuint shadowDepth = 0;
-
-	glm::mat4 shadowViewMat;
-	glm::mat4 shadowProjMat;
-	glm::mat4 shadowMVP;
-
-	GLuint shadowMVPLocation = 0;
 
 
 
@@ -77,6 +66,19 @@ struct Shadow
 		GLuint ambientLightLocation = glGetUniformLocation(program.programID, "ambientLight");
 		glUniform3fv(ambientLightLocation, 1, glm::value_ptr(ambientLight));
 
+
+
+	}
+
+	glm::mat4 calculateShadowMVP() {
+		glm::mat4 shadowViewMat = glm::lookAt(lightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+		float near_plane = 0.1f;
+		float far_plane = 100.0f;
+		glm::mat4 shadowProjMat = glm::ortho(0.f, 800.f, 0.f, 800.f, near_plane, far_plane);
+
+		return shadowProjMat * shadowViewMat;
+
 	}
 
 	void render() {
@@ -84,12 +86,8 @@ struct Shadow
 			setupShadow();
 
 		//shadow map create
-		shadowViewMat = glm::lookAt(lightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		glm::mat4 shadowMVP = calculateShadowMVP();
 
-		float near_plane = 1.0f;
-		float far_plane = 2000.0f;
-		shadowProjMat = glm::ortho(-200.f, 200.f, -200.f, 200.f, near_plane, far_plane);
-		shadowMVP = shadowProjMat * shadowViewMat;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 		glViewport(0, 0, 1024, 1024);
@@ -98,17 +96,22 @@ struct Shadow
 
 
 		glUseProgram(shadowProgram.programID);
-		shadowMVPLocation = glGetUniformLocation(shadowProgram.programID, "shadowMVP");
+		GLuint shadowMVPLocation = glGetUniformLocation(shadowProgram.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-		////map create done
-
+		//map create done
+		glUseProgram(program.programID);
 
 		shadowMVPLocation = glGetUniformLocation(program.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
+
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, shadowTex);
+		GLuint shadowTexLocation = glGetUniformLocation(program.programID, "shadowTex");
+		glUniform1i(shadowTexLocation, 4);
 
 
 	}

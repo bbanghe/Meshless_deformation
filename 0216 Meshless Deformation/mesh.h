@@ -193,7 +193,6 @@ struct Mesh {
         glGenBuffers(1, &vertexBuffer);
         glGenBuffers(1, &elementBuffer);
 
-        shadow.render();
 
         glBindVertexArray(vertexArray);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -229,8 +228,7 @@ struct Mesh {
 
         GLuint TexOrColorLocation = glGetUniformLocation(program.programID, "TexOrColor");
         glUniform1i(TexOrColorLocation, 1); // true이면 1, false이면 0
-
-
+        
 
         for (unsigned int i = 0; i < textures.size(); i++)
         {
@@ -251,12 +249,7 @@ struct Mesh {
 
         }
 
-
-
-        glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_2D, shadowTex);
-        GLuint shadowTexLocation = glGetUniformLocation(program.programID, "shadowTex");
-        glUniform1i(shadowTexLocation, 4);
+        shadow.render();
 
 
         glBindVertexArray(vertexArray);
