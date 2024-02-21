@@ -14,7 +14,6 @@ out vec3 normal;
 out vec3 worldPosition;
 out vec2 texCoords;
 out vec4 shadowCoord;
-out float z;
 
 
 void main(void){

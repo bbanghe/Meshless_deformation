@@ -17,20 +17,14 @@ struct Shadow
 	glm::vec3 lightColor = glm::vec3(0); //¹à±â Á¤µµ
 	glm::vec3 ambientLight = glm::vec3(0.f);
 
-
-
 	GLuint shadowFBO = 0;
 	GLuint shadowTex = 0;
 	GLuint shadowDepth = 0;
 
-
-
-	Shadow(glm::vec3 _lightPosition, glm::vec3 _lightColor, glm::vec3 _ambientLight) :lightPosition(_lightPosition), lightColor(_lightColor), ambientLight(_ambientLight) {
-		
+	Shadow(glm::vec3 _lightPosition, glm::vec3 _lightColor, glm::vec3 _ambientLight) :lightPosition(_lightPosition), lightColor(_lightColor), ambientLight(_ambientLight) {		
 	}
 
 	void setupShadow() {
-
 		glGenTextures(1, &shadowTex);
 		glBindTexture(GL_TEXTURE_2D, shadowTex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -65,17 +59,14 @@ struct Shadow
 
 		GLuint ambientLightLocation = glGetUniformLocation(program.programID, "ambientLight");
 		glUniform3fv(ambientLightLocation, 1, glm::value_ptr(ambientLight));
-
-
-
 	}
 
 	glm::mat4 calculateShadowMVP() {
 		glm::mat4 shadowViewMat = glm::lookAt(lightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-		float near_plane = 0.1f;
-		float far_plane = 100.0f;
-		glm::mat4 shadowProjMat = glm::ortho(0.f, 800.f, 0.f, 800.f, near_plane, far_plane);
+		float near_plane = 1.f;
+		float far_plane = 8000.0f;
+		glm::mat4 shadowProjMat = glm::ortho(-1000.f, 1000.f, -1000.f, 1000.f, near_plane, far_plane);
 
 		return shadowProjMat * shadowViewMat;
 
@@ -100,7 +91,6 @@ struct Shadow
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 		//map create done
 		glUseProgram(program.programID);

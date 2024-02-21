@@ -21,6 +21,7 @@
 
 void render(GLFWwindow*);
 void init();
+void keyFunc(GLFWwindow*, int key, int code, int action, int mods);
 
 int main()
 {
@@ -30,6 +31,7 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetKeyCallback(window, keyFunc);
     glewInit();
     init();
     glfwSwapInterval(1);
@@ -45,6 +47,7 @@ using namespace std;
 Program program;
 Program shadowProgram;
 vector<Mesh> meshes;
+bool animating = false;
 
 void init() {
     meshes = loadMesh("duck.dae");
@@ -52,7 +55,17 @@ void init() {
 
 Plane plane(contact_point, normal_vector);
 
-
+void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        if (key == ' ') {
+            animating = !animating;
+        }
+        if (key == '0') {
+            animating = false;
+            init();
+        }
+    }
+}
 
 void render(GLFWwindow* window) {
 
@@ -79,11 +92,11 @@ void render(GLFWwindow* window) {
 
 
     for (Mesh& mesh : meshes) {
+        if( animating )
         for (int i = 0; i < 10; i++) { //¹Ýº¹ -> »¡¸®¼ö·Å => Ãâ··°Å¸®´Â Çö»ó °¨¼Ò
             mesh.update(0.0166f / 10);
         }
         mesh.render();
-
     }
 
     glfwSwapBuffers(window);

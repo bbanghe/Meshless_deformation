@@ -59,8 +59,9 @@ struct Mesh {
 
     glm::vec3 init_height = glm::vec3(0.0f, 600.0f, 0.0f);
 
-    glm::vec3 lightPosition = glm::vec3(200, 300, 300);
-    glm::vec3 lightColor = glm::vec3(100000);
+
+    glm::vec3 lightPosition = glm::vec3(2000, 3000, 3000);
+    glm::vec3 lightColor = glm::vec3(10000000);
     glm::vec3 ambientLight = glm::vec3(0.0);
 
     Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
@@ -248,15 +249,14 @@ struct Mesh {
             glUniform1i(glGetUniformLocation(program.programID, (name + number).c_str()), i);
 
         }
-
         shadow.render();
 
 
         glBindVertexArray(vertexArray);
-        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-        // always good practice to set everything back to defaults once configured.
+        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+
         glActiveTexture(GL_TEXTURE0);
     }
 };

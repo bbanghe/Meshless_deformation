@@ -8,8 +8,8 @@ const float PI = 3.14159265358979f;
 struct Camera {
     float theta = 0;
     float phi = 0;
-    float distance = 1000; //duck -> 500 backpack -> 5 cottage ->100 cats -> 20
-    float fovy = 80 * PI / 180;
+    float distance = 5000; //duck -> 500 backpack -> 5 cottage ->100 cats -> 20
+    float fovy = 30 * PI / 180;
 
     glm::mat4 getViewMat() {
         glm::vec3 initialCameraPosition = glm::vec3(0, 0, distance);
@@ -20,6 +20,6 @@ struct Camera {
         return glm::lookAt(cameraPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     }
     glm::mat4 getProjMat(int w, int h) {
-        return glm::perspective(fovy, w / (float)h, 0.01f, 1000.f);
+        return glm::perspective(fovy, w / (float)h, 10.f, 50000.f);
     }
 };
