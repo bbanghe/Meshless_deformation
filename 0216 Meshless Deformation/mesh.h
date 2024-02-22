@@ -30,12 +30,9 @@ struct Vertex {
 static const glm::vec3 gravity = glm::vec3(0.0f, -385.827f, 0.0f);
 
 extern Program program;
-extern Program shadowProgram;
-
 
 extern glm::vec3 contact_point = glm::vec3(0.0f, -600.0f, 0.0f); 
 extern glm::vec3 normal_vector = normalize(glm::vec3(0.2f, 1.0f, 0.1f));
-
 
 struct Mesh {
     GLuint vertexBuffer = 0;
@@ -59,12 +56,6 @@ struct Mesh {
 
     glm::vec3 init_height = glm::vec3(0.0f, 600.0f, 0.0f);
 
-
-    glm::vec3 lightPosition = glm::vec3(2000, 3000, 3000);
-    glm::vec3 lightColor = glm::vec3(10000000);
-    glm::vec3 ambientLight = glm::vec3(0.0);
-
-    Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
 
     //constructor
     Mesh(const std::vector<Vertex>& _vertices, const std::vector<unsigned int>& _indices, const std::vector<Texture>& _textures) :vertices(_vertices), indices(_indices), textures(_textures) {
@@ -249,8 +240,6 @@ struct Mesh {
             glUniform1i(glGetUniformLocation(program.programID, (name + number).c_str()), i);
 
         }
-        shadow.render();
-
 
         glBindVertexArray(vertexArray);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);

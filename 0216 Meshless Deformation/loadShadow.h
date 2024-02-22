@@ -25,6 +25,7 @@ struct Shadow
 	}
 
 	void setupShadow() {
+
 		glGenTextures(1, &shadowTex);
 		glBindTexture(GL_TEXTURE_2D, shadowTex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -51,14 +52,6 @@ struct Shadow
 			printf("ERROR");
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		GLuint lightPositionLocation = glGetUniformLocation(program.programID, "lightPosition");
-		glUniform3fv(lightPositionLocation, 1, glm::value_ptr(lightPosition));
-
-		GLuint lightColorLocation = glGetUniformLocation(program.programID, "lightColor");
-		glUniform3fv(lightColorLocation, 1, glm::value_ptr(lightColor));
-
-		GLuint ambientLightLocation = glGetUniformLocation(program.programID, "ambientLight");
-		glUniform3fv(ambientLightLocation, 1, glm::value_ptr(ambientLight));
 	}
 
 	glm::mat4 calculateShadowMVP() {
@@ -77,23 +70,27 @@ struct Shadow
 			setupShadow();
 
 		//shadow map create
+		glUseProgram(shadowProgram.programID);
+
 		glm::mat4 shadowMVP = calculateShadowMVP();
 
-
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-		glViewport(0, 0, 1024, 1024);
-		glClearColor(0, 0, 0, 0);
+		glClearColor(1, 1, 1, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-
-		glUseProgram(shadowProgram.programID);
 		GLuint shadowMVPLocation = glGetUniformLocation(shadowProgram.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//map create done
 		glUseProgram(program.programID);
+
+		GLuint lightPositionLocation = glGetUniformLocation(program.programID, "lightPosition");
+		glUniform3fv(lightPositionLocation, 1, glm::value_ptr(lightPosition));
+
+		GLuint lightColorLocation = glGetUniformLocation(program.programID, "lightColor");
+		glUniform3fv(lightColorLocation, 1, glm::value_ptr(lightColor));
+
+		GLuint ambientLightLocation = glGetUniformLocation(program.programID, "ambientLight");
+		glUniform3fv(ambientLightLocation, 1, glm::value_ptr(ambientLight));
 
 		shadowMVPLocation = glGetUniformLocation(program.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
@@ -103,8 +100,8 @@ struct Shadow
 		GLuint shadowTexLocation = glGetUniformLocation(program.programID, "shadowTex");
 		glUniform1i(shadowTexLocation, 4);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	}
-
 };
 

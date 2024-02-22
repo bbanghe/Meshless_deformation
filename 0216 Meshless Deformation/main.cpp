@@ -13,7 +13,7 @@
 #include "mesh.h"
 #include "loadMesh.h"
 #include "plane.h"
-//#include "loadShadow.h"
+#include "loadShadow.h"
 
 #pragma comment (lib, "opengl32")
 #pragma comment (lib, "glfw3")
@@ -46,11 +46,13 @@ using namespace std;
 
 Program program;
 Program shadowProgram;
+
 vector<Mesh> meshes;
 bool animating = false;
 
 void init() {
     meshes = loadMesh("duck.dae");
+    shadowProgram.loadShaders("shadow.vert", "shadow.frag");
 }
 
 Plane plane(contact_point, normal_vector);
@@ -67,7 +69,16 @@ void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
     }
 }
 
+
+glm::vec3 lightPosition = glm::vec3(2000, 3000, 3000);
+glm::vec3 lightColor = glm::vec3(10000000);
+glm::vec3 ambientLight = glm::vec3(0.0);
+
+Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
+
+
 void render(GLFWwindow* window) {
+
 
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
@@ -77,6 +88,9 @@ void render(GLFWwindow* window) {
     glEnable(GL_DEPTH_TEST);
 
     glUseProgram(program.programID);
+    //glUseProgram(shadowProgram.programID);
+
+    
 
     GLuint ModelMatLocation = glGetUniformLocation(program.programID, "modelMat");
     glUniformMatrix4fv(ModelMatLocation, 1, 0, value_ptr(mat4(1)));
@@ -96,8 +110,13 @@ void render(GLFWwindow* window) {
         for (int i = 0; i < 10; i++) { //¹Ýº¹ -> »¡¸®¼ö·Å => Ãâ··°Å¸®´Â Çö»ó °¨¼Ò
             mesh.update(0.0166f / 10);
         }
+
         mesh.render();
     }
+
+    shadow.render();
+
+
 
     glfwSwapBuffers(window);
 }

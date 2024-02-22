@@ -125,6 +125,7 @@ inline std::vector<Mesh> loadMesh(const std::filesystem::path& file) {
     std::vector<Mesh> meshes;
     scene = importer.ReadFile(file.string().c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
     program.loadShaders("shader.vert", "shader.frag");
+
     processNode(scene->mRootNode, scene, meshes, textures_loaded);
     return meshes;
 }

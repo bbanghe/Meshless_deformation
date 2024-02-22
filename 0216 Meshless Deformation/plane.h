@@ -21,8 +21,8 @@ struct Plane {
 
 	std::vector<unsigned int> indices;
 
-	glm::vec3 point = glm::vec3(0.0f);
-	glm::vec3 normal = glm::vec3(0.0f);
+	glm::vec3 point;
+	glm::vec3 normal;
 	glm::vec4 color = glm::vec4(0.941176f, 0.972549f, 1.0f, 1.0f);
 
 	int vertexCount = 0;
@@ -41,6 +41,7 @@ struct Plane {
 		float B = normal.y;
 		float C = normal.z;
 		float D = -glm::dot(normal, point);
+
 		const float sz = 2000.f;
 		glm::vec3 p1 = glm::vec3(-sz, ((-D - A * (-sz) - C * (-sz)) / B), -sz);
 		glm::vec3 p2 = glm::vec3( sz, ((-D - A * ( sz) - C * (-sz)) / B), -sz);
