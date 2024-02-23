@@ -62,7 +62,7 @@ struct Shadow
 
 		float near_plane = 1.f;
 		float far_plane = 8000.0f;
-		glm::mat4 shadowProjMat = glm::ortho(-1000.f, 1000.f, -1000.f, 1000.f, near_plane, far_plane);
+		glm::mat4 shadowProjMat = glm::ortho(-2000.f, 2000.f, -2000.f, 2000.f, near_plane, far_plane);
 
 		return shadowProjMat * shadowViewMat;
 
