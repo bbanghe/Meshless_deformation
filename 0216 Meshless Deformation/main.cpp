@@ -80,16 +80,14 @@ Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
 void render(GLFWwindow* window) {
 
 
+
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glViewport(0, 0, w, h);
     glClearColor(0.27451f, 0.509804f, 0.705882f, 1); //배경색    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-
     glUseProgram(program.programID);
-    //glUseProgram(shadowProgram.programID);
-
     
 
     GLuint ModelMatLocation = glGetUniformLocation(program.programID, "modelMat");
@@ -105,18 +103,24 @@ void render(GLFWwindow* window) {
 
 
 
-    for (Mesh& mesh : meshes) {
-        if( animating )
+    if( animating ) {
         for (int i = 0; i < 10; i++) { //반복 -> 빨리수렴 => 출렁거리는 현상 감소
-            mesh.update(0.0166f / 10);
+            for (Mesh& mesh : meshes) {
+                mesh.update(0.0166f / 10);
+            }
         }
-
+    }
+    for (Mesh& mesh : meshes) {
         mesh.render();
     }
 
+    shadow.makeShadowMap([&]() {
+        for (Mesh& mesh : meshes) {
+            mesh.render();
+        }
+     });
+
     shadow.render();
-
-
 
     glfwSwapBuffers(window);
 }
