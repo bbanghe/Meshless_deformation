@@ -39,10 +39,6 @@ struct Mesh {
     GLuint vertexArray = 0;
     GLuint elementBuffer = 0;
 
-    GLuint shadowFBO = 0;
-    GLuint shadowTex = 0;
-    GLuint shadowDepth = 0;
-
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
@@ -173,9 +169,12 @@ struct Mesh {
             velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
             vertices[i].Position += velocity[i] * dt;
         }
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), &vertices[0]);
     }
-
+    void updateGL() {
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
+        glFlush();
+    }
 
 
 

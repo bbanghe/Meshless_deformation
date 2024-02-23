@@ -42,11 +42,11 @@ struct Plane {
 		float C = normal.z;
 		float D = -glm::dot(normal, point);
 
-		const float sz = 2000.f;
+		const float sz = 2500.f;
 		glm::vec3 p1 = glm::vec3(-sz, ((-D - A * (-sz) - C * (-sz)) / B), -sz);
 		glm::vec3 p2 = glm::vec3( sz, ((-D - A * ( sz) - C * (-sz)) / B), -sz);
-		glm::vec3 p3 = glm::vec3(-sz, ((-D - A * (-sz) - C * ( sz)) / B), sz);
-		glm::vec3 p4 = glm::vec3( sz, ((-D - A * ( sz) - C * ( sz)) / B), sz);
+		glm::vec3 p3 = glm::vec3(-sz, ((-D - A * (-sz) - C * ( sz)) / B),  sz);
+		glm::vec3 p4 = glm::vec3( sz, ((-D - A * ( sz) - C * ( sz)) / B),  sz);
 
 		plane_vertices[0] = p1;
 		plane_vertices[1] = p2;
@@ -55,7 +55,7 @@ struct Plane {
 	}
 
 	void setupPlane() {
-		
+
 		glGenVertexArrays(1, &PlaneVAO);
 		glBindVertexArray(PlaneVAO);
 
@@ -73,7 +73,6 @@ struct Plane {
 
 		glBindVertexArray(0);
 		vertexCount = 6;
-
 	}
 
 	void render() {

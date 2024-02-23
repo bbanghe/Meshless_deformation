@@ -55,7 +55,6 @@ void init() {
     shadowProgram.loadShaders("shadow.vert", "shadow.frag");
 }
 
-Plane plane(contact_point, normal_vector);
 
 void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
     if (action == GLFW_PRESS) {
@@ -69,6 +68,7 @@ void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
     }
 }
 
+Plane plane(contact_point, normal_vector);
 
 glm::vec3 lightPosition = glm::vec3(2000, 3000, 3000);
 glm::vec3 lightColor = glm::vec3(10000000);
@@ -79,6 +79,16 @@ Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
 
 void render(GLFWwindow* window) {
 
+    if (animating) {
+        for (int i = 0; i < 10; i++) { //반복 -> 빨리수렴 => 출렁거리는 현상 감소
+            for (Mesh& mesh : meshes) {
+                mesh.update(0.0166f / 10);
+            }
+        }
+        for (Mesh& mesh : meshes) {
+            mesh.updateGL();
+        }
+    }
 
 
     int w, h;
@@ -87,8 +97,16 @@ void render(GLFWwindow* window) {
     glClearColor(0.27451f, 0.509804f, 0.705882f, 1); //배경색    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+
+    shadow.makeShadowMap([&]() {
+        for (Mesh& mesh : meshes) {
+            mesh.render();
+        }
+        });
+    glViewport(0, 0, w, h);
     glUseProgram(program.programID);
-    
+    shadow.render();
+
 
     GLuint ModelMatLocation = glGetUniformLocation(program.programID, "modelMat");
     glUniformMatrix4fv(ModelMatLocation, 1, 0, value_ptr(mat4(1)));
@@ -101,26 +119,10 @@ void render(GLFWwindow* window) {
 
     plane.render();
 
-
-
-    if( animating ) {
-        for (int i = 0; i < 10; i++) { //반복 -> 빨리수렴 => 출렁거리는 현상 감소
-            for (Mesh& mesh : meshes) {
-                mesh.update(0.0166f / 10);
-            }
-        }
-    }
     for (Mesh& mesh : meshes) {
         mesh.render();
     }
 
-    shadow.makeShadowMap([&]() {
-        for (Mesh& mesh : meshes) {
-            mesh.render();
-        }
-     });
-
-    shadow.render();
 
     glfwSwapBuffers(window);
 }

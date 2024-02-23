@@ -41,9 +41,6 @@
     <ClInclude Include="plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="j3a.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="loadShadow.h">
       <Filter>Header Files</Filter>
     </ClInclude>

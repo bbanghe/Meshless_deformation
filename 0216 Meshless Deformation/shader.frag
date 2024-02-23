@@ -41,6 +41,9 @@ void main(void)
 	float visibility =1;
 	if(depth>tDepth+0.001) visibility = 0.5;
 
+	//float bias = 0.005 * tan(acos(dot(N,L)));
+	//if ( texture( shadowMap, sCoord.xy ).z < sCoord.z-bias)	visibility -= 0.5;
+
 	//textureÀÇ °æ¿ì
 	if(TexOrColor>0){
 		vec4 Diffuse = texture(diffuseTex,texCoords);
@@ -50,13 +53,12 @@ void main(void)
 		vec3 final_color = Diffuse.rgb*max(0,dot(L,N))*I;
 		final_color += pow(dot(R,V),shininess)*I*Specular.rgb;
 		final_color *= visibility;
-//		final_color += Diffuse.rgb*ambientLight;
 
 		out_Color = vec4(pow(final_color,vec3(1/2.2)),1);
 	}
 	else{
 		out_Color = color*visibility;
-		out_Color = color*vec4(vec3(depth*tDepth),1);
+//		out_Color = vec4(vec3(tDepth),1);
 	}
 
 }

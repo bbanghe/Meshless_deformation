@@ -13,9 +13,9 @@ extern Program program;
 struct Shadow
 {
 	
-	glm::vec3 lightPosition = glm::vec3(0); //light의 위치
-	glm::vec3 lightColor = glm::vec3(0); //밝기 정도
-	glm::vec3 ambientLight = glm::vec3(0.f);
+	glm::vec3 lightPosition; //light의 위치
+	glm::vec3 lightColor; //밝기 정도
+	glm::vec3 ambientLight;
 
 	glm::mat4 shadowMVP;
 	GLuint shadowMVPLocation = 0;
@@ -72,18 +72,20 @@ struct Shadow
 		if (shadowFBO == 0)
 			setupShadow();
 
-		//shadow map create
 		glUseProgram(shadowProgram.programID);
 
 		shadowMVP = calculateShadowMVP();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+		glViewport(0, 0, 1024, 1024);
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		shadowMVPLocation = glGetUniformLocation(shadowProgram.programID, "shadowMVP");
 		glUniformMatrix4fv(shadowMVPLocation, 1, 0, glm::value_ptr(shadowMVP));
+
 		renderFunc();
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
