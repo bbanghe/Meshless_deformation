@@ -119,7 +119,7 @@ void render(GLFWwindow* window) {
 
     plane.render();
 
-    for (Mesh& mesh : meshes) {
+    for (Mesh& mesh : meshes) { 
         mesh.render();
     }
 

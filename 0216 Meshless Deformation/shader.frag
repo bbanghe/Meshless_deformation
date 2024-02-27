@@ -23,6 +23,22 @@ in vec2 texCoords;
 in vec4 shadowCoord;
 
 
+float PCFShadow(sampler2D shadowMap, vec2 shadowTexCoord, float currentDepth) {
+	float shadow = 0.0;
+	float bias = 0.0001f;
+	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+	for(int x = -1; x <= 1; ++x)
+	{
+		for(int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(shadowMap, shadowTexCoord.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth > pcfDepth + bias ? 0.0 : 1.0;
+		}    
+	}
+	return shadow / 9.0f;
+}
+
+
 void main(void)
 {
 	vec3 l = lightPosition - worldPosition;
@@ -38,13 +54,16 @@ void main(void)
 	vec2 shadowTexCoord = (shadowCoord.xy/shadowCoord.w+vec2(1))*0.5;
 	float tDepth = texture(shadowTex, shadowTexCoord).r; 
 
+	/*
 	float visibility =1;
 	if(depth>tDepth+0.001) visibility = 0.5;
+	*/
 
-	//float bias = 0.005 * tan(acos(dot(N,L)));
-	//if ( texture( shadowMap, sCoord.xy ).z < sCoord.z-bias)	visibility -= 0.5;
+	float visibility = PCFShadow(shadowTex, shadowTexCoord, depth);
+	//clamp: visibility가 0.0보다 작거나 1.0보다 큰 경우 0.0, 1.0으로 설정......
+    visibility = clamp(visibility, 0.0, 1.0);
 
-	//texture의 경우
+
 	if(TexOrColor>0){
 		vec4 Diffuse = texture(diffuseTex,texCoords);
 		vec4 Specular = texture(specularTex,texCoords);
