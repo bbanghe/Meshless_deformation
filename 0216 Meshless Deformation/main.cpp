@@ -102,7 +102,8 @@ void render(GLFWwindow* window) {
         for (Mesh& mesh : meshes) {
             mesh.render();
         }
-        });
+    });
+
     glViewport(0, 0, w, h);
     glUseProgram(program.programID);
     shadow.render();

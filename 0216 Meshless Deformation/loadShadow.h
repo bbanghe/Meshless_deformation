@@ -62,6 +62,11 @@ struct Shadow
 
 		float near_plane = 1.f;
 		float far_plane = 8000.0f;
+		
+		//float fov = glm::radians(45.0f); // 시야각(Field of View), 라디안 단위로 변환
+		//float aspectRatio = 4.0f / 3.0f; // 종횡비(Aspect Ratio), 일반적으로 화면의 가로세로 비율
+
+		//glm::mat4 shadowProjMat = glm::perspective(fov, aspectRatio, near_plane, far_plane);
 		glm::mat4 shadowProjMat = glm::ortho(-3000.f, 3000.f, -3000.f, 3000.f, near_plane, far_plane);
 
 		return shadowProjMat * shadowViewMat;
@@ -108,6 +113,7 @@ struct Shadow
 		glBindTexture(GL_TEXTURE_2D, shadowTex);
 		GLuint shadowTexLocation = glGetUniformLocation(program.programID, "shadowTex");
 		glUniform1i(shadowTexLocation, 4);
+
 	}
 };
 
