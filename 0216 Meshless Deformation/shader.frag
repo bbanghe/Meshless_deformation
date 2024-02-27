@@ -22,6 +22,11 @@ in vec3 worldPosition;
 in vec2 texCoords;
 in vec4 shadowCoord;
 
+float random(int i) {
+	float dot_product = dot(vec4(gl_FragCoord.xyz,i),
+											vec4(12.9898,78.233,45.164,94.673));
+	 return fract(sin(dot_product) * 43758.5453);
+ }
 
 float PCFShadow(sampler2D shadowMap, vec2 shadowTexCoord, float currentDepth) {
     float shadow = 1.0;
@@ -34,9 +39,11 @@ float PCFShadow(sampler2D shadowMap, vec2 shadowTexCoord, float currentDepth) {
     );
 
     for (int i = 0; i < 4; i++) {
+		int index = int(random(i)*16)%16;
+
         float pcfDepth = texture(shadowMap, shadowTexCoord + poissonDisk[i] / 700.0).r;
         if (pcfDepth < currentDepth - bias) {
-            shadow -= 0.25; // Adjusted to ensure the shadow value decreases correctly
+            shadow -= 0.25; 
         }
     }
 
@@ -59,13 +66,7 @@ void main(void)
 	vec2 shadowTexCoord = (shadowCoord.xy/shadowCoord.w+vec2(1))*0.5;
 	float tDepth = texture(shadowTex, shadowTexCoord).r; 
 
-	/*
-	float visibility =1;
-	if(depth>tDepth+0.001) visibility = 0.5;
-	*/
-
 	float visibility = PCFShadow(shadowTex, shadowTexCoord, depth);
-	//clamp: visibility가 0.0보다 작거나 1.0보다 큰 경우 0.0, 1.0으로 설정......
     visibility = clamp(visibility, 0.0, 1.0);
 
 
