@@ -24,18 +24,23 @@ in vec4 shadowCoord;
 
 
 float PCFShadow(sampler2D shadowMap, vec2 shadowTexCoord, float currentDepth) {
-	float shadow = 0.0;
-	float bias = 0.0001f;
-	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-	for(int x = -1; x <= 1; ++x)
-	{
-		for(int y = -1; y <= 1; ++y)
-		{
-			float pcfDepth = texture(shadowMap, shadowTexCoord.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth > pcfDepth + bias ? 0.0 : 1.0;
-		}    
-	}
-	return shadow / 9.0f;
+    float shadow = 1.0;
+    float bias = 0.0001f;
+    vec2 poissonDisk[4] = vec2[4](
+        vec2( -0.94201624, -0.39906216 ),
+        vec2( 0.94558609, -0.76890725 ),
+        vec2( -0.094184101, -0.92938870 ),
+        vec2( 0.34495938, 0.29387760 ) 
+    );
+
+    for (int i = 0; i < 4; i++) {
+        float pcfDepth = texture(shadowMap, shadowTexCoord + poissonDisk[i] / 700.0).r;
+        if (pcfDepth < currentDepth - bias) {
+            shadow -= 0.25; // Adjusted to ensure the shadow value decreases correctly
+        }
+    }
+
+    return shadow;
 }
 
 
