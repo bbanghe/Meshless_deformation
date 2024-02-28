@@ -108,7 +108,6 @@ void render(GLFWwindow* window) {
     glUseProgram(program.programID);
     shadow.render();
 
-
     GLuint ModelMatLocation = glGetUniformLocation(program.programID, "modelMat");
     glUniformMatrix4fv(ModelMatLocation, 1, 0, value_ptr(mat4(1)));
 
@@ -123,7 +122,6 @@ void render(GLFWwindow* window) {
     for (Mesh& mesh : meshes) { 
         mesh.render();
     }
-
 
     glfwSwapBuffers(window);
 }

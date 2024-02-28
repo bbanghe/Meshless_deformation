@@ -95,8 +95,6 @@ struct Shadow
 	}
 
 	void render() {
-		glUseProgram(program.programID);
-
 		GLuint lightPositionLocation = glGetUniformLocation(program.programID, "lightPosition");
 		glUniform3fv(lightPositionLocation, 1, glm::value_ptr(lightPosition));
 

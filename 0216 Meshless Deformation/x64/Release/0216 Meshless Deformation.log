@@ -13,9 +13,9 @@ C:\Users\se\source\repos\0216_Meshless_Deformation\include\Eigen\src\Core\produc
   
 MSVCRT.lib(initializers.obj) : warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  8 of 2002 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
-    61 functions had inline decision re-evaluated but remain unchanged
+  0 of 2002 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
   0216 Meshless Deformation.vcxproj -> C:\Users\se\source\repos\0216_Meshless_Deformation\x64\Release\0216 Meshless Deformation.exe
