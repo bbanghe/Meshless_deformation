@@ -49,25 +49,31 @@ vec2 poissonDisk[16] = vec2[](
 
 float PCFShadow(sampler2D shadowMap, vec2 shadowTexCoord, float currentDepth, float cosTheta) {
 
-
 	//shadow acne 제거 bias값 
     float shadow = 1.0;
 	float bias = 0.005*tan(acos(cosTheta)); //cosTheta -> normal / light 방향으로 이동 -> shadow map 이동
 	bias = clamp(bias, 0,0.01f);
 
 	int shadownum = 4;
+	float spread = 750.0;
+
 
     for (int i = 0; i < shadownum; i++) {
-		int index = int(16.0*random(gl_FragCoord.xyz, i))%16;
 
-		float spread = 750.0;
-        float pcfDepth = texture(shadowMap, shadowTexCoord + poissonDisk[index] / spread).r;
-        
+		//index
+		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
+		//int index = int(16.0*random(floor(worldPosition.xyz*1000.0), i))%16;
+
+
+		float pcfDepth = texture(shadowMap, shadowTexCoord.xy + poissonDisk[index] / spread).r;
+
+		/*
 		if (pcfDepth < currentDepth - bias) {
             shadow -= 0.2; 
         }
+		*/
 		
-		//shadow -= 0.2*(1.0-texture( shadowMap, vec3(shadowTexCoord.xy + poissonDisk[index] / spread,  (shadowTexCoord.z - bias) / shadowTexCoord.w) ));
+		shadow -= 0.1 * (1.0 - pcfDepth);
     }
     return shadow;
 }

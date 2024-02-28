@@ -41,6 +41,7 @@ int main()
     }
 }
 
+
 using namespace glm;
 using namespace std;
 
@@ -89,7 +90,6 @@ void render(GLFWwindow* window) {
             mesh.updateGL();
         }
     }
-
 
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
