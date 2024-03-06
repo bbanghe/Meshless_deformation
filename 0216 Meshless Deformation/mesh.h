@@ -5,6 +5,7 @@
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h> 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include "toys.h"
 
@@ -20,6 +21,8 @@
 #include "camera.h"
 #include "loadShadow.h"
 
+#include "math.h"
+
 struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
@@ -32,7 +35,7 @@ static const glm::vec3 gravity = glm::vec3(0.0f, -385.827f, 0.0f);
 extern Program program;
 
 extern glm::vec3 contact_point = glm::vec3(0.0f, -600.0f, 0.0f); 
-extern glm::vec3 normal_vector = normalize(glm::vec3(0.2f, 1.0f, 0.1f));
+extern glm::vec3 normal_vector = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 
 struct Mesh {
     GLuint vertexBuffer = 0;
@@ -61,7 +64,7 @@ struct Mesh {
 
         for (int i = 0; i < vertices.size();i++) {
             origin_point[i] = vertices[i].Position;
-            vertices[i].Position = rotate(-PI / 6.f, glm::vec3(0, 0, 1)) * glm::vec4(vertices[i].Position, 1);
+            //vertices[i].Position = rotate(-PI / 6.f, glm::vec3(0, 0, 1)) * glm::vec4(vertices[i].Position, 1);
             vertices[i].Position += init_height; //duck : 600
         }
 
@@ -123,6 +126,15 @@ struct Mesh {
                 Rotation[i][j] = R_eigen(i, j);
             }
         }
+
+        //linear deforamtion
+        float beta = 0.5;
+        //R ´ë½Å ¥âA + (1 - ¥â)RÀ» »ç¿ë 
+        glm::mat3 A = A_pq * A_qq;
+        float detA = glm::determinant(A);
+        A /= pow(detA, 1/3);
+        Rotation = beta * A + (1 - beta) * Rotation;
+
         return Rotation;
     }
 
@@ -133,7 +145,7 @@ struct Mesh {
 
         float proximityThreshold = 0.000000001f;
 
-        float alpha = 0.5f; //Åº¼º (rigid-body : 1)
+        float alpha = 0.2f; //Åº¼º (rigid-body : 1)
         glm::vec3 external = glm::vec3(0, -1, 0);
 
         for (int i = 0; i < vertices.size();i++) {
@@ -160,6 +172,9 @@ struct Mesh {
         }
 
         glm::mat3 R = optimalRotation(q_values, p_values, weight_values);
+        
+
+
 
         for (int i = 0; i < vertices.size(); ++i) {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;

@@ -30,54 +30,54 @@ float random(vec3 seed, int i){
 
 vec2 poissonDisk[16] = vec2[]( 
    vec2( -0.94201624, -0.39906216 ), 
-   vec2( 0.94558609, -0.76890725 ), 
-   vec2( -0.094184101, -0.92938870 ), 
-   vec2( 0.34495938, 0.29387760 ), 
-   vec2( -0.91588581, 0.45771432 ), 
+   vec2(  0.94558609, -0.76890725 ), 
+   vec2( -0.094184101,-0.92938870 ), 
+   vec2(  0.34495938,  0.29387760 ), 
+   vec2( -0.91588581,  0.45771432 ), 
    vec2( -0.81544232, -0.87912464 ), 
-   vec2( -0.38277543, 0.27676845 ), 
-   vec2( 0.97484398, 0.75648379 ), 
-   vec2( 0.44323325, -0.97511554 ), 
-   vec2( 0.53742981, -0.47373420 ), 
+   vec2( -0.38277543,  0.27676845 ), 
+   vec2(  0.97484398,  0.75648379 ), 
+   vec2(  0.44323325, -0.97511554 ), 
+   vec2(  0.53742981, -0.47373420 ), 
    vec2( -0.26496911, -0.41893023 ), 
-   vec2( 0.79197514, 0.19090188 ), 
-   vec2( -0.24188840, 0.99706507 ), 
-   vec2( -0.81409955, 0.91437590 ), 
-   vec2( 0.19984126, 0.78641367 ), 
-   vec2( 0.14383161, -0.14100790 ) 
+   vec2(  0.79197514,  0.19090188 ), 
+   vec2( -0.24188840,  0.99706507 ), 
+   vec2( -0.81409955,  0.91437590 ), 
+   vec2(  0.19984126,  0.78641367 ), 
+   vec2(  0.14383161, -0.14100790 ) 
 );
 
 float PCFShadow(sampler2D shadowMap, vec2 shadowTexCoord, float currentDepth, float cosTheta) {
 
 	//shadow acne 제거 bias값 
     float shadow = 1.0;
-	float bias = 0.005*tan(acos(cosTheta)); //cosTheta -> normal / light 방향으로 이동 -> shadow map 이동
+	float bias = 0.005*tan(acos(cosTheta)); //cosTheta -> normal || light 방향으로 이동 -> shadow map 이동
 	bias = clamp(bias, 0,0.01f);
 
-	int shadownum = 4;
-	float spread = 750.0;
+	int shadownum = 16;
+	float spread = 700.0;
 
+	float r = random(gl_FragCoord.xyy, 3)*2*3.14159265358979;
+	mat2 rotation = mat2(cos(r), sin(r), -sin(r), cos(r));
 
     for (int i = 0; i < shadownum; i++) {
 
 		//index
-		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
 		//int index = int(16.0*random(floor(worldPosition.xyz*1000.0), i))%16;
+//		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
+		float pcfDepth = texture(shadowMap, shadowTexCoord.xy + rotation*poissonDisk[i] / spread).r;
 
-
-		float pcfDepth = texture(shadowMap, shadowTexCoord.xy + poissonDisk[index] / spread).r;
-
-		/*
-		if (pcfDepth < currentDepth - bias) {
-            shadow -= 0.2; 
-        }
-		*/
 		
-		shadow -= 0.1 * (1.0 - pcfDepth);
+		if (pcfDepth < currentDepth - bias) {
+            //shadow -= 0.2; 
+			shadow -= 1./shadownum /** (1.0 - pcfDepth)*/;
+
+        }
+		//shadow -= 0.1 * (1.0 - pcfDepth);
+		//shadow -= 0.10 * (1.0 - pcfDepth > currentDepth - bias ? 1.0 : 0.0);	
     }
     return shadow;
 }
-
 
 void main(void)
 {
