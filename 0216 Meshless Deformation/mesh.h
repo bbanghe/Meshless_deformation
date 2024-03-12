@@ -128,25 +128,27 @@ struct Mesh {
         }
 
         //linear deforamtion
-        float beta = 0.5;
+        float beta = 0.7;
         //R 대신 βA + (1 - β)R을 사용 
-        glm::mat3 A = A_pq * A_qq;
+        glm::mat3 A = A_pq * glm::inverse(A_qq);
+
         float detA = glm::determinant(A);
-        A /= pow(detA, 1/3);
+        A /= pow(detA, 1.0/3.0);
         Rotation = beta * A + (1 - beta) * Rotation;
 
         return Rotation;
     }
 
     void update(const float& dt) {
-
+        
         std::vector<glm::vec3> goalPosition(vertices.size());
 
 
-        float proximityThreshold = 0.000000001f;
+        float proximityThreshold = 0.0000001f;
 
         float alpha = 0.2f; //탄성 (rigid-body : 1)
         glm::vec3 external = glm::vec3(0, -1, 0);
+        float repulsive = 0.5f; //반발력
 
         for (int i = 0; i < vertices.size();i++) {
             if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
@@ -157,7 +159,7 @@ struct Mesh {
                 //response
                 glm::vec3 Vn = dot(normal_vector, velocity[i]) * normal_vector;
                 glm::vec3 Vt = velocity[i] - Vn;
-                velocity[i] = Vt - 0.9f * Vn;
+                velocity[i] = Vt - repulsive * Vn;
             }
             velocity[i] += gravity * dt;
             vertices[i].Position = vertices[i].Position + velocity[i] * dt;
