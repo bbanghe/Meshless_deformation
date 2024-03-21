@@ -93,23 +93,38 @@ struct Mesh {
         return Translation;
     }
 
+
+
     glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
 
-        //행렬 A 생성: 
-        glm::mat3 A_pq(0.0f);
-        glm::mat3 A_qq(0.0f);
+        // 행렬 A 생성: 
+        glm::mat3 A_pq(0.0f); //rotation
+        glm::mat3 A_qq(0.0f); //scaling
+
 
         for (int i = 0; i < q.size(); ++i) {
             A_pq += weights[i] * outerProduct(p[i], q[i]);
             A_qq += weights[i] * outerProduct(q[i], q[i]);
         }
+        A_qq = glm::inverse(A_qq);
 
-        // SVD
+        glm::mat3 A = A_pq * A_qq;
+        glm::mat3 Rotation = Rotation_Matrix(A_pq);
+
+        Rotation = Linear_deforamation(A, Rotation);
+
+        return Rotation;
+    }
+
+    glm::mat3 Rotation_Matrix(glm::mat3 A_pq) {
+        // SVD 적용
+
+        //glm->Eigen 
         Eigen::Matrix3f A_pq_eigen, A_qq_eigen;
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 A_pq_eigen(i, j) = A_pq[i][j];
-                A_qq_eigen(i, j) = A_qq[i][j];
+                //A_qq_eigen(i, j) = A_qq[i][j];
             }
         }
 
@@ -120,24 +135,41 @@ struct Mesh {
         // 회전 행렬 R 계산
         Eigen::Matrix3f R_eigen = U * V.transpose();
 
+        //Eigen -> glm
         glm::mat3 Rotation;
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 Rotation[i][j] = R_eigen(i, j);
             }
         }
+    }
 
-        //linear deforamtion
-        float beta = 0.7;
+    glm::mat3 Linear_deforamation(glm::mat3 A, glm::mat3 Rotation) {
+        float beta = 0.99f;
         //R 대신 βA + (1 - β)R을 사용 
-        glm::mat3 A = A_pq * glm::inverse(A_qq);
 
         float detA = glm::determinant(A);
-        A /= pow(detA, 1.0/3.0);
+        A /= pow(detA, 1.0 / 3.0);
         Rotation = beta * A + (1 - beta) * Rotation;
 
         return Rotation;
     }
+
+    glm::mat3 Quadratic_deformation(glm::mat3 A, glm::mat3 Rotation) {
+        float beta = 0.99f;
+        //R 대신 βA + (1 - β)R을 사용 
+
+        //tilde_A 계산
+
+
+        //tilde_Rotation 계산
+
+        Rotation = beta * A + (1 - beta) * Rotation;
+
+        return Rotation;
+    }
+
+
 
     void update(const float& dt) {
         
@@ -146,10 +178,10 @@ struct Mesh {
 
         float proximityThreshold = 0.0000001f;
 
-        float alpha = 0.2f; //탄성 (rigid-body : 1)
+        float alpha = 0.2f; //탄성 (rigid-body : 1) 클 수록 잘 튄다...~
         glm::vec3 external = glm::vec3(0, -1, 0);
-        float repulsive = 0.5f; //반발력
-
+        float repulsive = 0.5f; //반발력 -> 계속 뛰어오르는 현상 방지
+        repulsive = 0;
         for (int i = 0; i < vertices.size();i++) {
             if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
                 //collision resolve
@@ -160,6 +192,7 @@ struct Mesh {
                 glm::vec3 Vn = dot(normal_vector, velocity[i]) * normal_vector;
                 glm::vec3 Vt = velocity[i] - Vn;
                 velocity[i] = Vt - repulsive * Vn;
+                velocity[i] = glm::vec3(0); //마찰력 0
             }
             velocity[i] += gravity * dt;
             vertices[i].Position = vertices[i].Position + velocity[i] * dt;
@@ -168,7 +201,6 @@ struct Mesh {
         std::vector<glm::vec3> p_values;  // p 벡터: 실제 모양 - t
         p_values.resize(vertices.size(), glm::vec3(0.0f));
 
-
         for (int i = 0; i < vertices.size(); i++) {
             p_values[i] = vertices[i].Position - t;
         }
@@ -176,11 +208,10 @@ struct Mesh {
         glm::mat3 R = optimalRotation(q_values, p_values, weight_values);
         
 
-
-
         for (int i = 0; i < vertices.size(); ++i) {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;
         }
+
         for (int i = 0; i < vertices.size();i++) {
             glm::vec3 positionDifference = goalPosition[i] - vertices[i].Position;
             velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];

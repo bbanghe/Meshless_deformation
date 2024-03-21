@@ -94,7 +94,7 @@ void render(GLFWwindow* window) {
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glViewport(0, 0, w, h);
-    glClearColor(0.27451f, 0.509804f, 0.705882f, 1); //배경색    
+    glClearColor(0.81, 0.84, 0.96, 1); //배경색    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
