@@ -14,13 +14,22 @@ C:\Users\se\source\repos\0216_Meshless_Deformation\include\Eigen\src\Core\produc
 C:\Users\se\source\repos\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(97,30): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 C:\Users\se\source\repos\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(97,24): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 C:\Users\se\source\repos\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(97,18): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-MSVCRT.lib(initializers.obj) : warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
-  Generating code
-  Previous IPDB and IOBJ mismatch, fall back to full compilation.
-C:\Users\se\source\repos\0216_Meshless_Deformation\0216 Meshless Deformation\loadMesh.h(119): warning C4715: 'processMesh': not all control paths return a value
-  All 2014 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Finished generating code
-glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
-  0216 Meshless Deformation.vcxproj -> C:\Users\se\source\repos\0216_Meshless_Deformation\x64\Release\0216 Meshless Deformation.exe
-  'pwsh.exe'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
-  배치 파일이 아닙니다.
+C:\Users\se\source\repos\0216_Meshless_Deformation\include\Eigen\src\Core\PlainObjectBase.h(845,7): error C2338: static_assert failed: 'FLOATING_POINT_ARGUMENT_PASSED__INTEGER_WAS_EXPECTED'
+  (compiling source file 'main.cpp')
+  C:\Users\se\source\repos\0216_Meshless_Deformation\include\Eigen\src\Core\PlainObjectBase.h(845,7):
+  the template instantiation context (the oldest one first) is
+  	C:\Users\se\source\repos\0216_Meshless_Deformation\0216 Meshless Deformation\mesh.h(175,30):
+  	see reference to function template instantiation 'Eigen::Matrix<float,3,9,0,3,9>::Matrix<float>(const T &)' being compiled
+          with
+          [
+              T=float
+          ]
+  		C:\Users\se\source\repos\0216_Meshless_Deformation\0216 Meshless Deformation\mesh.h(175,30):
+  		see the first reference to 'Eigen::Matrix<float,3,9,0,3,9>::Matrix' in 'Mesh::Quadratic_deformation'
+  	C:\Users\se\source\repos\0216_Meshless_Deformation\include\Eigen\src\Core\Matrix.h(332,22):
+  	see reference to function template instantiation 'void Eigen::PlainObjectBase<Eigen::Matrix<float,3,9,0,3,9>>::_init1<T>(Eigen::Index,float *)' being compiled
+          with
+          [
+              T=float
+          ]
+  

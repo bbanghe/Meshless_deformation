@@ -176,15 +176,23 @@ struct Mesh {
         Matrix9f A_qq_tilde(0.0f); //scaling
 
 
-        for (int i = 0; i < q.size(); ++i) {
-            A_pq_tilde += weights[i] * (p[i] * q_tilde[i]);
-            A_qq_tilde += weights[i] * outerProduct(q_tilde[i], q_tilde[i]);
+        //for (int i = 0; i < q.size(); ++i) {
+        //    A_pq_tilde += weights[i] * (p[i] * q_tilde[i]);
+        //    A_qq_tilde += weights[i] * outerProduct(q_tilde[i], q_tilde[i]);
 
-        }
-        A_qq_tilde = A_qq_tilde.inverse();
+        //}
+        //A_qq_tilde = A_qq_tilde.inverse();
         
         Matrix3x9f A_tilde = A_pq_tilde * A_qq_tilde;
         //tilde_Rotation °è»ê
+
+        Matrix3x9f Rotation_tilde(0.0f);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Rotation_tilde(i, j) = Rotation[i][j];
+            }
+        }
+
 
 //        Rotation = beta * A_tilde + (1 - beta) * Rotation;
         
