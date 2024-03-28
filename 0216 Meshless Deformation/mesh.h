@@ -154,15 +154,14 @@ struct Mesh {
 
         return Rotation;
     }
+    using Matrix9f = Eigen::Matrix<float, 9, 9>;
 
-    glm::mat3 Quadratic_deformation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p,  glm::mat3 Rotation, const std::vector<float>& weights) {
+    Matrix9f Quadratic_deformation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p,  glm::mat3 Rotation, const std::vector<float>& weights) {
         float beta = 0.99f;
 
         //eigen 이용해서 행렬 크기 조절하기. (4 이상일 경우~)
-        typedef Eigen::Matrix<float, 9, 9> Matrix9f;
         typedef Eigen::Matrix<float, 3, 9> Matrix3x9f;
         typedef Eigen::Matrix<float, 9, 1 > Vector9f;
-        typedef Eigen::Matrix<float, 9, 1 > Vector3f;
 
 
         std::vector<Vector9f> q_tilde;
@@ -170,22 +169,20 @@ struct Mesh {
             q_tilde[i] = { q[i].x , q[i].y, q[i].z, q[i].x * q[i].x, q[i].y* q[i].y, q[i].z * q[i].z, q[i].x* q[i].y, q[i].y* q[i].z, q[i].z* q[i].x };
         }
 
+        Matrix3x9f Apq = Eigen::Matrix<float,3,9>::Zero();
+        Matrix9f   Aqq = Eigen::Matrix<float,9,9>::Zero();
 
-        //tilde_A 계산
-        Matrix3x9f A_pq_tilde(0.0f); //rotation
-        Matrix9f A_qq_tilde(0.0f); //scaling
+        for (int i = 0; i < q.size(); ++i) {
+            Eigen::Vector3f p_; p_ << p[i].x, p[i].y, p[i].z;
+            Apq += p_ * q_tilde[i].transpose();
+            Aqq += q_tilde[i]*q_tilde[i].transpose();
+        }
 
-
-        //for (int i = 0; i < q.size(); ++i) {
-        //    A_pq_tilde += weights[i] * (p[i] * q_tilde[i]);
-        //    A_qq_tilde += weights[i] * outerProduct(q_tilde[i], q_tilde[i]);
-
-        //}
-        //A_qq_tilde = A_qq_tilde.inverse();
+        Aqq = Aqq.inverse();
         
-        Matrix3x9f A_tilde = A_pq_tilde * A_qq_tilde;
+        Matrix3x9f A_tilde = Apq * Aqq;
+        
         //tilde_Rotation 계산
-
         Matrix3x9f Rotation_tilde(0.0f);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -193,10 +190,9 @@ struct Mesh {
             }
         }
 
-
-//        Rotation = beta * A_tilde + (1 - beta) * Rotation;
+        Rotation_tilde = beta * A_tilde + (1 - beta) * Rotation_tilde;
         
-        return Rotation;
+        return Rotation_tilde;
     }
 
 
