@@ -7,7 +7,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/norm.hpp>
 #include <vector>
-#include "toys.h"
 
 #include "callback.h"
 #include "mesh.h"
@@ -23,6 +22,8 @@ void render(GLFWwindow*);
 void init();
 void keyFunc(GLFWwindow*, int key, int code, int action, int mods);
 
+double xpos, ypos;
+
 int main()
 {
     glfwInit();
@@ -31,6 +32,7 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetScrollCallback(window, scrollCallback);
+
     glfwSetKeyCallback(window, keyFunc);
     glewInit();
     init();
@@ -84,6 +86,8 @@ void render(GLFWwindow* window) {
         for (int i = 0; i < 10; i++) { //¹Ýº¹ -> »¡¸®¼ö·Å => Ãâ··°Å¸®´Â Çö»ó °¨¼Ò
             for (Mesh& mesh : meshes) {
                 mesh.update(0.0166f / 10);
+                mesh.setXpoint(getXPoint());
+                mesh.setYpoint(getYPoint());
             }
         }
         for (Mesh& mesh : meshes) {

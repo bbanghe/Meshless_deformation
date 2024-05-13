@@ -154,9 +154,10 @@ struct Mesh {
 
         return Rotation;
     }
+    /*
     using Matrix9f = Eigen::Matrix<float, 9, 9>;
-
-    Matrix9f Quadratic_deformation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p,  glm::mat3 Rotation, const std::vector<float>& weights) {
+    using Matrix3x9f = Eigen::Matrix<float, 3, 9>;
+    Matrix3x9f Quadratic_deformation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p,  glm::mat3 Rotation, const std::vector<float>& weights) {
         float beta = 0.99f;
 
         //eigen 이용해서 행렬 크기 조절하기. (4 이상일 경우~)
@@ -194,8 +195,18 @@ struct Mesh {
         
         return Rotation_tilde;
     }
-
-
+    */
+    double xpos, ypos;
+    void setXpoint(double Xpos) {
+        xpos = Xpos;
+    }
+    void setYpoint(double Ypos) {
+        ypos = Ypos;
+    }
+    //만약 ypos와 xpos가 모두 -2000일 경우에는 진행 X...
+    void ObjectMove() {
+            
+    }
 
     void update(const float& dt) {
         
@@ -208,7 +219,7 @@ struct Mesh {
         glm::vec3 external = glm::vec3(0, -1, 0);
         float repulsive = 0.5f; //반발력 -> 계속 뛰어오르는 현상 방지
         repulsive = 0;
-        for (int i = 0; i < vertices.size();i++) {
+        for (int i = 1; i < vertices.size();i++) {
             if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
                 //collision resolve
                 glm::vec3 resolution = dot((contact_point - vertices[i].Position), normal_vector) * normal_vector;
@@ -238,7 +249,7 @@ struct Mesh {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;
         }
 
-        for (int i = 0; i < vertices.size();i++) {
+        for (int i = 1; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
             glm::vec3 positionDifference = goalPosition[i] - vertices[i].Position;
             velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
             vertices[i].Position += velocity[i] * dt;

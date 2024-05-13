@@ -7,5 +7,7 @@ extern Camera camera;
 
 void cursorPosCallback(GLFWwindow* win, double xpos, double ypos);
 void scrollCallback(GLFWwindow* win, double xoffset, double yoffset);
+double getXPoint();
+double getYPoint();
 
 #endif
