@@ -1,24 +1,16 @@
-﻿  main.cpp
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\include\Eigen\src\Core\arch\Default\Half.h(1,1): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  (compiling source file 'main.cpp')
-  
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\include\Eigen\src\Core\arch\Default\BFloat16.h(1,1): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  (compiling source file 'main.cpp')
-  
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\include\Eigen\src\Core\arch\Default\GenericPacketMathFunctions.h(676,1): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  (compiling source file 'main.cpp')
-  
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\include\Eigen\src\Core\products\GeneralBlockPanelKernel.h(2063,1): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  (compiling source file 'main.cpp')
-  
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(106,30): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(106,24): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(106,18): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+﻿  Callback.cpp
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(79,36): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(80,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(82,67): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(83,70): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(96,62): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(100,72): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\Callback.cpp(112,28): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 MSVCRT.lib(initializers.obj) : warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  1 of 2018 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    56 functions had inline decision re-evaluated but remain unchanged
+  Compiler switch has changed, fall back to full compilation.
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\loadMesh.h(119): warning C4715: 'processMesh': not all control paths return a value
+  All 2060 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
 glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
   0216 Meshless Deformation.vcxproj -> C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\x64\Release\0216 Meshless Deformation.exe

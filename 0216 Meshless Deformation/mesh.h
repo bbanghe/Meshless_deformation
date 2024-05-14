@@ -36,6 +36,7 @@ extern Program program;
 
 extern glm::vec3 contact_point = glm::vec3(0.0f, -600.0f, 0.0f); 
 extern glm::vec3 normal_vector = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+extern int init_fixnum = 15;
 extern int fixnum = 15;
 
 
@@ -49,13 +50,12 @@ struct Mesh {
     std::vector<Texture> textures;
     std::vector<glm::vec3> velocity;
 
-
     glm::vec3 t_0 = glm::vec3(0.0f);
     std::vector<glm::vec3> q_values;  // q 벡터:  초기모양 - t_0 
     std::vector<float> weight_values;  // weights 벡터의 값들... vertices.weight
     std::vector<glm::vec3> origin_point = std::vector<glm::vec3>(0);
 
-    glm::vec3 init_height = glm::vec3(0.0f, 600.0f, 0.0f);
+    glm::vec3 init_height = glm::vec3(0.0f, -600.0f, 0.0f);
 
 
     //constructor

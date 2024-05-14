@@ -67,7 +67,7 @@ void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
         if (key == '0') {
             animating = false;
             init();
-            fixnum = 10;
+            fixnum = init_fixnum;
         }
         if (key == '1') {
             fixnum = 0;
@@ -91,8 +91,6 @@ void render(GLFWwindow* window) {
         for (int i = 0; i < 10; i++) { //¹Ýº¹ -> »¡¸®¼ö·Å => Ãâ··°Å¸®´Â Çö»ó °¨¼Ò
             for (Mesh& mesh : meshes) {
                 mesh.update(0.0166f / 10);
-                mesh.setXpoint(getXPoint());
-                mesh.setYpoint(getYPoint());
             }
         }
         for (Mesh& mesh : meshes) {

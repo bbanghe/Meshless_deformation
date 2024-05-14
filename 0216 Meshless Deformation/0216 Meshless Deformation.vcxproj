@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="Callback.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="JR_Picker3D.hpp" />
     <ClInclude Include="loadMesh.h" />
     <ClInclude Include="loadShadow.h" />
     <ClInclude Include="mesh.h" />
