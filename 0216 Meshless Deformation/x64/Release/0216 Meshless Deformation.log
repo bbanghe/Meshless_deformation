@@ -11,12 +11,12 @@ C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\inclu
 C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\include\Eigen\src\Core\products\GeneralBlockPanelKernel.h(2063,1): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
   (compiling source file 'main.cpp')
   
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(101,30): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(101,24): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(101,18): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(106,30): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(106,24): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(106,18): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 MSVCRT.lib(initializers.obj) : warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  2 of 2018 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  1 of 2018 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     56 functions had inline decision re-evaluated but remain unchanged
   Finished generating code

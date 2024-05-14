@@ -67,7 +67,12 @@ void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
         if (key == '0') {
             animating = false;
             init();
+            fixnum = 10;
         }
+        if (key == '1') {
+            fixnum = 0;
+        }
+
     }
 }
 

@@ -36,6 +36,8 @@ extern Program program;
 
 extern glm::vec3 contact_point = glm::vec3(0.0f, -600.0f, 0.0f); 
 extern glm::vec3 normal_vector = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+extern int fixnum = 15;
+
 
 struct Mesh {
     GLuint vertexBuffer = 0;
@@ -218,8 +220,10 @@ struct Mesh {
         float alpha = 0.2f; //탄성 (rigid-body : 1) 클 수록 잘 튄다...~
         glm::vec3 external = glm::vec3(0, -1, 0);
         float repulsive = 0.5f; //반발력 -> 계속 뛰어오르는 현상 방지
+
+
         repulsive = 0;
-        for (int i = 1; i < vertices.size();i++) {
+        for (int i = fixnum; i < vertices.size();i++) {
             if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
                 //collision resolve
                 glm::vec3 resolution = dot((contact_point - vertices[i].Position), normal_vector) * normal_vector;
@@ -249,7 +253,7 @@ struct Mesh {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;
         }
 
-        for (int i = 1; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
+        for (int i = fixnum; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
             glm::vec3 positionDifference = goalPosition[i] - vertices[i].Position;
             velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
             vertices[i].Position += velocity[i] * dt;
