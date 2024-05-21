@@ -6,6 +6,7 @@
 #include "Callback.h"
 #include <tuple>
 
+
 Camera camera;
 
 struct pos_t {
@@ -16,7 +17,8 @@ double Xpos, Ypos;
 
 glm::vec3 cursorPt3;
 float cursorD;
-//std::tuple<glm::vec3, float> get3DCursorPos(GLFWwindow* window, const glm::ivec2& sz, const glm::mat4& vp, float windowH);
+float depth;
+extern bool check;
 
 inline glm::vec2 getFramebufferCursorPos(GLFWwindow* window, float windowH) {
 	double xpos, ypos;
@@ -61,6 +63,12 @@ inline glm::vec3 get3DCursorPos(GLFWwindow* window, float d, const glm::ivec2& s
 	return glm::vec3(ptWC) / ptWC.w;
 }
 
+extern glm::vec3 movePoint;
+extern bool push;
+extern glm::vec3 cursorDifference;
+
+
+
 void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
     static double lastX = 0;
     static double lastY = 0;
@@ -71,7 +79,7 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
 
     if (glfwGetKey(win, GLFW_KEY_LEFT_SHIFT)) {
         if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1)) {
-
+            
             double dx = xpos - lastX;
             double dy = ypos - lastY;
             camera.theta -= dx / w * PI;
@@ -87,22 +95,31 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
         glm::mat4 vp = projection * view;
 
         glm::ivec2 sz = glm::ivec2(w, h);
-        
 
-        if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1)==GLFW_PRESS) {
+        std::tie(cursorPt3, cursorD) = get3DCursorPos(win, sz, vp, h);
+
+        if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
             //DRAG + PUSH
-            glm::vec3 oldPt3 = cursorPt3;
-            cursorPt3 = get3DCursorPos(win, cursorD, sz, vp, h);
-            // TODO
-        }else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) {
+
+            //depth가 유의미한 값일 때 가장 가까운 vertex를 찾아준다. 
+            if (cursorD != 1.0f && push == false && cursorPt3.y < 800 && cursorPt3.y > -800) {
+                movePoint = cursorPt3;
+                depth = cursorD;
+                push = true;
+            }
+
+        }
+        else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && push == true) {
             //Release
-            // 
-            // TODO
-        }else {
+            //vertex의 위치를 바꾼다. 
+            cursorDifference = get3DCursorPos(win, depth, sz, vp, h);
+            push = false;
+            check = true;
+        }
+        else {
             //MOVE - 현 위치 get
-            std::tie(cursorPt3, cursorD) = get3DCursorPos(win, sz, vp, h);
-            //printf("% f % f % f\n", cursorPt3.x, cursorPt3.y, cursorPt3.z);
-            // TODO
+//            printf("% f % f % f % f\n", cursorPt3.x, cursorPt3.y, cursorPt3.z, cursorD);
+            //TODO
         }
     }
     lastX = xpos;

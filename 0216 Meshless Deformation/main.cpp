@@ -58,21 +58,29 @@ void init() {
     shadowProgram.loadShaders("shadow.vert", "shadow.frag");
 }
 
-
 void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
     if (action == GLFW_PRESS) {
         if (key == ' ') {
             animating = !animating;
         }
-        if (key == '0') {
-            animating = false;
-            init();
-            fixnum = init_fixnum;
-        }
         if (key == '1') {
+            //height 600 case
+            animating = false;
+            fixnum = init_fixnum;
+            height = 600;            
+            init();
+        }
+        if (key == '2') {
+            //height -600 case
+            animating = false;
+            fixnum = init_fixnum;
+            height = -600;
+            init();
+        }
+        if (key == 'R' || key == 'r') {
+            //release 
             fixnum = 0;
         }
-
     }
 }
 
@@ -83,6 +91,11 @@ glm::vec3 lightColor = glm::vec3(10000000);
 glm::vec3 ambientLight = glm::vec3(0.0);
 
 Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
+
+glm::vec3 movePoint;
+bool push = false;
+bool check;
+glm::vec3 cursorDifference;
 
 
 void render(GLFWwindow* window) {
@@ -98,6 +111,7 @@ void render(GLFWwindow* window) {
         }
     }
 
+    
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glViewport(0, 0, w, h);

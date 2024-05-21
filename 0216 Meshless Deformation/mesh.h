@@ -22,6 +22,7 @@
 #include "loadShadow.h"
 
 #include "math.h"
+#include "Callback.h"
 
 struct Vertex {
     glm::vec3 Position;
@@ -38,6 +39,14 @@ extern glm::vec3 contact_point = glm::vec3(0.0f, -600.0f, 0.0f);
 extern glm::vec3 normal_vector = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 extern int init_fixnum = 15;
 extern int fixnum = 15;
+extern int height = 600;
+
+extern bool push;
+extern bool check;
+
+extern glm::vec3 cursorDifference;
+extern glm::vec3 movePoint;
+
 
 
 struct Mesh {
@@ -55,7 +64,11 @@ struct Mesh {
     std::vector<float> weight_values;  // weights 벡터의 값들... vertices.weight
     std::vector<glm::vec3> origin_point = std::vector<glm::vec3>(0);
 
-    glm::vec3 init_height = glm::vec3(0.0f, -600.0f, 0.0f);
+    glm::vec3 init_height = glm::vec3(0.0f, height, 0.0f);
+
+    bool calculateA_QQ = false;
+
+    size_t closestVertexIndex = 0;
 
 
     //constructor
@@ -78,12 +91,11 @@ struct Mesh {
             weight_values[i] = vertices[i].weight;
         }
     }
-
-
     glm::vec3 optimalTranslation() {
         glm::vec3 Translation = glm::vec3(0.0f);
         glm::vec3 sumPosition = glm::vec3(0.0f);
         float sumWeight = 0;
+
 
         for (int i = 0; i < vertices.size();i++) {
             sumPosition += vertices[i].weight * vertices[i].Position;
@@ -95,6 +107,17 @@ struct Mesh {
         return Translation;
     }
 
+    void updateVertexPosition() {
+        float minDistance = std::numeric_limits<float>::max();
+
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            float distance = glm::distance(vertices[i].Position, movePoint);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestVertexIndex = i;
+            }
+        }
+    }
 
 
     glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
@@ -103,12 +126,17 @@ struct Mesh {
         glm::mat3 A_pq(0.0f); //rotation
         glm::mat3 A_qq(0.0f); //scaling
 
+        //1회만 계산해도 된다는 이점이 있다. 
+        if (calculateA_QQ == false) {
+            for (int i = 0; i < q.size(); ++i) {
+                A_qq += weights[i] * outerProduct(q[i], q[i]);
+            }
+            A_qq = glm::inverse(A_qq);
+        }
 
         for (int i = 0; i < q.size(); ++i) {
             A_pq += weights[i] * outerProduct(p[i], q[i]);
-            A_qq += weights[i] * outerProduct(q[i], q[i]);
         }
-        A_qq = glm::inverse(A_qq);
 
         glm::mat3 A = A_pq * A_qq;
         glm::mat3 Rotation = Rotation_Matrix(A_pq);
@@ -198,31 +226,24 @@ struct Mesh {
         return Rotation_tilde;
     }
     */
-    double xpos, ypos;
-    void setXpoint(double Xpos) {
-        xpos = Xpos;
-    }
-    void setYpoint(double Ypos) {
-        ypos = Ypos;
-    }
-    //만약 ypos와 xpos가 모두 -2000일 경우에는 진행 X...
-    void ObjectMove() {
-            
-    }
+
 
     void update(const float& dt) {
+
         
         std::vector<glm::vec3> goalPosition(vertices.size());
 
 
         float proximityThreshold = 0.0000001f;
 
-        float alpha = 0.2f; //탄성 (rigid-body : 1) 클 수록 잘 튄다...~
+        float alpha = 0.5f; //탄성 (rigid-body : 1) 클 수록 잘 튄다...~
         glm::vec3 external = glm::vec3(0, -1, 0);
         float repulsive = 0.5f; //반발력 -> 계속 뛰어오르는 현상 방지
 
 
-        repulsive = 0;
+
+
+
         for (int i = fixnum; i < vertices.size();i++) {
             if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
                 //collision resolve
@@ -251,6 +272,12 @@ struct Mesh {
 
         for (int i = 0; i < vertices.size(); ++i) {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;
+        }
+
+        if (push == true && check == true) {
+            check = false;
+            updateVertexPosition();
+            goalPosition[closestVertexIndex] = cursorDifference;
         }
 
         for (int i = fixnum; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
