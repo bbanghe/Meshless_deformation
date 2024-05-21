@@ -37,15 +37,15 @@ extern Program program;
 
 extern glm::vec3 contact_point = glm::vec3(0.0f, -600.0f, 0.0f); 
 extern glm::vec3 normal_vector = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-extern int init_fixnum = 15;
-extern int fixnum = 15;
 extern int height = 600;
 
 extern bool push;
 extern bool check;
+extern bool release;
 
 extern glm::vec3 cursorDifference;
 extern glm::vec3 movePoint;
+
 
 
 
@@ -70,6 +70,7 @@ struct Mesh {
 
     size_t closestVertexIndex = 0;
 
+    float springConstant = 0.00005f;
 
     //constructor
     Mesh(const std::vector<Vertex>& _vertices, const std::vector<unsigned int>& _indices, const std::vector<Texture>& _textures) :vertices(_vertices), indices(_indices), textures(_textures) {
@@ -241,24 +242,46 @@ struct Mesh {
         float repulsive = 0.5f; //반발력 -> 계속 뛰어오르는 현상 방지
 
 
+        glm::vec3 fixedPoint = vertices[0].Position;
 
 
-
-        for (int i = fixnum; i < vertices.size();i++) {
-            if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
-                //collision resolve
-                glm::vec3 resolution = dot((contact_point - vertices[i].Position), normal_vector) * normal_vector;
-                vertices[i].Position += resolution;
-
-                //response
-                glm::vec3 Vn = dot(normal_vector, velocity[i]) * normal_vector;
-                glm::vec3 Vt = velocity[i] - Vn;
-                velocity[i] = Vt - repulsive * Vn;
-                velocity[i] = glm::vec3(0); //마찰력 0
-            }
-            velocity[i] += gravity * dt;
-            vertices[i].Position = vertices[i].Position + velocity[i] * dt;
+        /*
+        if (push == true && check == true) {
+            check = false;
+            updateVertexPosition();
+            fixedPoint = vertices[closestVertexIndex].Position;
+            
+            //force = cursorDifference = 화면 상에서 선택한 위치! 
         }
+        */
+        
+
+        //충돌했을 경우 
+        for (int i = 0; i < vertices.size();i++) {
+            if (fixedPoint != vertices[i].Position || release == true) {
+                if (dot(vertices[i].Position - contact_point, normal_vector) < proximityThreshold && dot(velocity[i], normal_vector) < 0.0f) {
+                    //collision resolve
+                    glm::vec3 resolution = dot((contact_point - vertices[i].Position), normal_vector) * normal_vector;
+                    vertices[i].Position += resolution;
+
+                    //response
+                    glm::vec3 Vn = dot(normal_vector, velocity[i]) * normal_vector;
+                    glm::vec3 Vt = velocity[i] - Vn;
+                    velocity[i] = Vt - repulsive * Vn;
+                    velocity[i] = glm::vec3(0); //마찰력 0
+                }
+                velocity[i] = velocity[i] + gravity * dt;
+
+                vertices[i].Position += velocity[i] * dt ;
+
+                if (!release) {
+                    glm::vec3 springForce = springConstant * (fixedPoint - vertices[i].Position);
+                    vertices[i].Position += springForce;
+
+                }
+            }
+        }
+        //Translation + Rotation 계산
         glm::vec3 t = optimalTranslation();
         std::vector<glm::vec3> p_values;  // p 벡터: 실제 모양 - t
         p_values.resize(vertices.size(), glm::vec3(0.0f));
@@ -269,30 +292,26 @@ struct Mesh {
 
         glm::mat3 R = optimalRotation(q_values, p_values, weight_values);
         
-
+        //goalPosition 계산 
         for (int i = 0; i < vertices.size(); ++i) {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;
         }
 
-        if (push == true && check == true) {
-            check = false;
-            updateVertexPosition();
-            goalPosition[closestVertexIndex] = cursorDifference;
-        }
-
-        for (int i = fixnum; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
+        for (int i = 0; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
             glm::vec3 positionDifference = goalPosition[i] - vertices[i].Position;
-            velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
-            vertices[i].Position += velocity[i] * dt;
+
+            if (fixedPoint != vertices[i].Position) {
+                velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
+                vertices[i].Position += velocity[i] * dt;
+            }
         }
     }
+
     void updateGL() {
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
         glFlush();
     }
-
-
 
     void setupMesh() {
         //vertexBuffer

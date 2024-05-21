@@ -66,20 +66,20 @@ void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
         if (key == '1') {
             //height 600 case
             animating = false;
-            fixnum = init_fixnum;
+            release = false;
             height = 600;            
             init();
         }
         if (key == '2') {
             //height -600 case
             animating = false;
-            fixnum = init_fixnum;
+            release = false;
             height = -600;
             init();
         }
         if (key == 'R' || key == 'r') {
             //release 
-            fixnum = 0;
+            release = true;
         }
     }
 }
@@ -95,6 +95,7 @@ Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
 glm::vec3 movePoint;
 bool push = false;
 bool check;
+bool release = false;
 glm::vec3 cursorDifference;
 
 
