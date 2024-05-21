@@ -96,7 +96,7 @@ glm::vec3 movePoint;
 bool push = false;
 bool check;
 bool release = false;
-glm::vec3 cursorDifference;
+glm::vec3 pullPoint;
 
 
 void render(GLFWwindow* window) {

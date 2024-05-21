@@ -65,7 +65,7 @@ inline glm::vec3 get3DCursorPos(GLFWwindow* window, float d, const glm::ivec2& s
 
 extern glm::vec3 movePoint;
 extern bool push;
-extern glm::vec3 cursorDifference;
+extern glm::vec3 pullPoint;
 
 
 
@@ -106,13 +106,14 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
                 movePoint = cursorPt3;
                 depth = cursorD;
                 push = true;
+                check = false;
             }
 
         }
         else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && push == true) {
             //Release
-            //vertex의 위치를 바꾼다. 
-            cursorDifference = get3DCursorPos(win, depth, sz, vp, h);
+            //pullPoint = 놓는 순간의 point 
+            pullPoint = get3DCursorPos(win, depth, sz, vp, h);
             push = false;
             check = true;
         }

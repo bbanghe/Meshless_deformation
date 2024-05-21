@@ -43,7 +43,7 @@ extern bool push;
 extern bool check;
 extern bool release;
 
-extern glm::vec3 cursorDifference;
+extern glm::vec3 pullPoint;
 extern glm::vec3 movePoint;
 
 
@@ -245,17 +245,7 @@ struct Mesh {
         glm::vec3 fixedPoint = vertices[0].Position;
 
 
-        /*
-        if (push == true && check == true) {
-            check = false;
-            updateVertexPosition();
-            fixedPoint = vertices[closestVertexIndex].Position;
-            
-            //force = cursorDifference = 화면 상에서 선택한 위치! 
-        }
-        */
         
-
         //충돌했을 경우 
         for (int i = 0; i < vertices.size();i++) {
             if (fixedPoint != vertices[i].Position || release == true) {
@@ -277,10 +267,36 @@ struct Mesh {
                 if (!release) {
                     glm::vec3 springForce = springConstant * (fixedPoint - vertices[i].Position);
                     vertices[i].Position += springForce;
-
                 }
             }
         }
+
+        if (push == true) {
+            glm::vec3 nearestPoint = glm::vec3(0);
+            if(check == true){
+                updateVertexPosition();
+                nearestPoint = vertices[closestVertexIndex].Position;
+                printf("%f %f %f\n", pullPoint.x, pullPoint.y, pullPoint.z);
+            }
+            /*
+            //단순 move => 성공!!! 
+            for (int i = 0; i < vertices.size();i++) {
+                vertices[i].Position += (pullPoint - nearestPoint);
+            }
+            */
+
+            // pullPoint = 화면 상에서 선택한 위치! 
+            for (int i = 0; i < vertices.size();i++) { 
+                if (fixedPoint != vertices[i].Position) {
+                    glm::vec3 springForce = 0.001f * (pullPoint - nearestPoint - vertices[i].Position);
+                    vertices[i].Position += springForce;
+
+                }
+            }
+            
+        }
+
+
         //Translation + Rotation 계산
         glm::vec3 t = optimalTranslation();
         std::vector<glm::vec3> p_values;  // p 벡터: 실제 모양 - t
@@ -297,10 +313,11 @@ struct Mesh {
             goalPosition[i] = R * (origin_point[i] - t_0) + t;
         }
 
-        for (int i = 0; i < vertices.size();i++) { //0에서 1로 바꿨을 때 메달린 상태로 변경 가능 
+        for (int i = 0; i < vertices.size();i++) {
             glm::vec3 positionDifference = goalPosition[i] - vertices[i].Position;
 
             if (fixedPoint != vertices[i].Position) {
+                //fixPoint는 속도와 position이 변하지 않음. 
                 velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
                 vertices[i].Position += velocity[i] * dt;
             }
