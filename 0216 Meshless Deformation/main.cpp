@@ -52,8 +52,17 @@ Program shadowProgram;
 
 vector<Mesh> meshes;
 bool animating = false;
+bool push = false;
+bool release = false;
+bool moveObj = false;
+
 
 void init() {
+    animating = false;
+    push = false;
+    release = false;
+    moveObj = false;
+
     meshes = loadMesh("duck.dae");
     shadowProgram.loadShaders("shadow.vert", "shadow.frag");
 }
@@ -64,21 +73,14 @@ void keyFunc(GLFWwindow*, int key, int code, int action, int mods) {
             animating = !animating;
         }
         if (key == '1') {
-            //height 600 case
-            animating = false;
-            release = false;
             height = 600;            
             init();
         }
         if (key == '2') {
-            //height -600 case
-            animating = false;
-            release = false;
             height = -600;
             init();
         }
         if (key == 'R' || key == 'r') {
-            //release 
             release = true;
         }
     }
@@ -93,9 +95,7 @@ glm::vec3 ambientLight = glm::vec3(0.0);
 Shadow shadow = Shadow(lightPosition, lightColor, ambientLight);
 
 glm::vec3 movePoint;
-bool push = false;
-bool check;
-bool release = false;
+glm::vec3 movingPoint;
 glm::vec3 pullPoint;
 
 
@@ -112,7 +112,6 @@ void render(GLFWwindow* window) {
         }
     }
 
-    
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glViewport(0, 0, w, h);

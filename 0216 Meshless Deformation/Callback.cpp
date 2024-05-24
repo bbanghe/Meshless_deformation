@@ -18,7 +18,6 @@ double Xpos, Ypos;
 glm::vec3 cursorPt3;
 float cursorD;
 float depth;
-extern bool check;
 
 inline glm::vec2 getFramebufferCursorPos(GLFWwindow* window, float windowH) {
 	double xpos, ypos;
@@ -65,9 +64,12 @@ inline glm::vec3 get3DCursorPos(GLFWwindow* window, float d, const glm::ivec2& s
 
 extern glm::vec3 movePoint;
 extern bool push;
+extern bool moveObj;
+extern glm::vec3 movingPoint;
+
 extern glm::vec3 pullPoint;
 
-
+bool DepthLocked = true;
 
 void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
     static double lastX = 0;
@@ -88,6 +90,9 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
             if (camera.phi < -PI / 2 + 0.01) camera.phi = -PI / 2 + 0.01; // limit low angle
             else if (camera.phi > PI / 2 - 0.01) camera.phi = PI / 2 - 0.01; // limit high angle
         }
+        lastX = xpos;
+        lastY = ypos;
+
     }
     else {
         glm::mat4 view = camera.getViewMat();
@@ -96,35 +101,31 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
 
         glm::ivec2 sz = glm::ivec2(w, h);
 
-        std::tie(cursorPt3, cursorD) = get3DCursorPos(win, sz, vp, h);
+        if (glfwGetKey(win, GLFW_KEY_LEFT_CONTROL))
+            moveObj = true;
+        else
+            moveObj = false;
 
         if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-            //DRAG + PUSH
-
-            //depth가 유의미한 값일 때 가장 가까운 vertex를 찾아준다. 
-            if (cursorD != 1.0f && push == false && cursorPt3.y < 800 && cursorPt3.y > -800) {
-                movePoint = cursorPt3;
-                depth = cursorD;
-                push = true;
-                check = false;
-            }
+            if(DepthLocked == false){ //push
+                if (cursorD != 1.0f && cursorPt3.y < 800 && cursorPt3.y > -800 ) {
+                    std::tie(cursorPt3, cursorD) = get3DCursorPos(win, sz, vp, h);
+                    movePoint = cursorPt3;
+                    depth = cursorD;
+                    push = true;
+                    DepthLocked = true;
+                }
+            }else //drag
+                movingPoint = get3DCursorPos(win, depth, sz, vp, h);
 
         }
-        else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && push == true) {
-            //Release
+        else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && push == true) { //release
             //pullPoint = 놓는 순간의 point 
             pullPoint = get3DCursorPos(win, depth, sz, vp, h);
             push = false;
-            check = true;
-        }
-        else {
-            //MOVE - 현 위치 get
-//            printf("% f % f % f % f\n", cursorPt3.x, cursorPt3.y, cursorPt3.z, cursorD);
-            //TODO
+            DepthLocked = false;
         }
     }
-    lastX = xpos;
-    lastY = ypos;
 }
 
 

@@ -110,8 +110,9 @@ void main(void)
 		out_Color = vec4(pow(final_color,vec3(1/2.2)),1);
 	}
 	else{
-		out_Color = color*visibility;
+		out_Color = vec4(color.rgb*visibility,1);
 		//out_Color = vec4(vec3(tDepth),1);
+		out_Color = vec4(1,0,0,1);
 	}
 
 }

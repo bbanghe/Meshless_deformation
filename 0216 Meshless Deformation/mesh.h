@@ -40,11 +40,13 @@ extern glm::vec3 normal_vector = normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 extern int height = 600;
 
 extern bool push;
-extern bool check;
 extern bool release;
+extern bool moveObj;
+
 
 extern glm::vec3 pullPoint;
 extern glm::vec3 movePoint;
+extern glm::vec3 movingPoint;
 
 
 
@@ -70,7 +72,11 @@ struct Mesh {
 
     size_t closestVertexIndex = 0;
 
-    float springConstant = 0.00005f;
+    const float springConstant = 0.00005f;
+    const float proximityThreshold = 0.0000001f;
+
+    glm::vec3 nearestPoint = glm::vec3(0);
+
 
     //constructor
     Mesh(const std::vector<Vertex>& _vertices, const std::vector<unsigned int>& _indices, const std::vector<Texture>& _textures) :vertices(_vertices), indices(_indices), textures(_textures) {
@@ -155,7 +161,6 @@ struct Mesh {
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 A_pq_eigen(i, j) = A_pq[i][j];
-                //A_qq_eigen(i, j) = A_qq[i][j];
             }
         }
 
@@ -185,67 +190,19 @@ struct Mesh {
 
         return Rotation;
     }
-    /*
-    using Matrix9f = Eigen::Matrix<float, 9, 9>;
-    using Matrix3x9f = Eigen::Matrix<float, 3, 9>;
-    Matrix3x9f Quadratic_deformation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p,  glm::mat3 Rotation, const std::vector<float>& weights) {
-        float beta = 0.99f;
-
-        //eigen 이용해서 행렬 크기 조절하기. (4 이상일 경우~)
-        typedef Eigen::Matrix<float, 3, 9> Matrix3x9f;
-        typedef Eigen::Matrix<float, 9, 1 > Vector9f;
-
-
-        std::vector<Vector9f> q_tilde;
-        for (int i = 0; i < q.size(); ++i) {
-            q_tilde[i] = { q[i].x , q[i].y, q[i].z, q[i].x * q[i].x, q[i].y* q[i].y, q[i].z * q[i].z, q[i].x* q[i].y, q[i].y* q[i].z, q[i].z* q[i].x };
-        }
-
-        Matrix3x9f Apq = Eigen::Matrix<float,3,9>::Zero();
-        Matrix9f   Aqq = Eigen::Matrix<float,9,9>::Zero();
-
-        for (int i = 0; i < q.size(); ++i) {
-            Eigen::Vector3f p_; p_ << p[i].x, p[i].y, p[i].z;
-            Apq += p_ * q_tilde[i].transpose();
-            Aqq += q_tilde[i]*q_tilde[i].transpose();
-        }
-
-        Aqq = Aqq.inverse();
-        
-        Matrix3x9f A_tilde = Apq * Aqq;
-        
-        //tilde_Rotation 계산
-        Matrix3x9f Rotation_tilde(0.0f);
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                Rotation_tilde(i, j) = Rotation[i][j];
-            }
-        }
-
-        Rotation_tilde = beta * A_tilde + (1 - beta) * Rotation_tilde;
-        
-        return Rotation_tilde;
-    }
-    */
-
 
     void update(const float& dt) {
 
         
         std::vector<glm::vec3> goalPosition(vertices.size());
 
-
-        float proximityThreshold = 0.0000001f;
-
         float alpha = 0.5f; //탄성 (rigid-body : 1) 클 수록 잘 튄다...~
         glm::vec3 external = glm::vec3(0, -1, 0);
         float repulsive = 0.5f; //반발력 -> 계속 뛰어오르는 현상 방지
 
 
-        glm::vec3 fixedPoint = vertices[0].Position;
+        const glm::vec3 fixedPoint = vertices[0].Position;
 
-
-        
         //충돌했을 경우 
         for (int i = 0; i < vertices.size();i++) {
             if (fixedPoint != vertices[i].Position || release == true) {
@@ -265,37 +222,32 @@ struct Mesh {
                 vertices[i].Position += velocity[i] * dt ;
 
                 if (!release) {
-                    glm::vec3 springForce = springConstant * (fixedPoint - vertices[i].Position);
-                    vertices[i].Position += springForce;
+                    glm::vec3 fixForce = springConstant * (fixedPoint - vertices[i].Position);
+                    vertices[i].Position += fixForce;
                 }
             }
         }
 
         if (push == true) {
-            glm::vec3 nearestPoint = glm::vec3(0);
-            if(check == true){
-                updateVertexPosition();
-                nearestPoint = vertices[closestVertexIndex].Position;
-                printf("%f %f %f\n", pullPoint.x, pullPoint.y, pullPoint.z);
-            }
-            /*
-            //단순 move => 성공!!! 
-            for (int i = 0; i < vertices.size();i++) {
-                vertices[i].Position += (pullPoint - nearestPoint);
-            }
-            */
-
-            // pullPoint = 화면 상에서 선택한 위치! 
-            for (int i = 0; i < vertices.size();i++) { 
-                if (fixedPoint != vertices[i].Position) {
-                    glm::vec3 springForce = 0.001f * (pullPoint - nearestPoint - vertices[i].Position);
-                    vertices[i].Position += springForce;
-
+            updateVertexPosition();
+            nearestPoint = vertices[closestVertexIndex].Position;
+    
+            if (moveObj == true) {
+                for (int i = 0; i < vertices.size();i++) {
+                    vertices[i].Position += (movingPoint - nearestPoint);
                 }
             }
-            
-        }
+            else {
+                // pullPoint = 화면 상에서 선택한 위치! 
+                for (int i = 0; i < vertices.size();i++) {
+                    if (fixedPoint != vertices[i].Position || release == true) {
+                        glm::vec3 pullForce = 0.001f * (pullPoint - nearestPoint - vertices[i].Position);
+                        vertices[i].Position += pullForce;
+                    }
+                }
 
+            }    
+        }
 
         //Translation + Rotation 계산
         glm::vec3 t = optimalTranslation();
@@ -316,7 +268,7 @@ struct Mesh {
         for (int i = 0; i < vertices.size();i++) {
             glm::vec3 positionDifference = goalPosition[i] - vertices[i].Position;
 
-            if (fixedPoint != vertices[i].Position) {
+            if (fixedPoint != vertices[i].Position || release == true) {
                 //fixPoint는 속도와 position이 변하지 않음. 
                 velocity[i] = (alpha * positionDifference / dt) + (dt * external / vertices[i].weight) + 0.9999f * velocity[i];
                 vertices[i].Position += velocity[i] * dt;

@@ -11,13 +11,13 @@ C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\inclu
 C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\include\Eigen\src\Core\products\GeneralBlockPanelKernel.h(2063,1): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
   (compiling source file 'main.cpp')
   
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(119,30): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(119,24): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(119,18): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(118,30): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(118,24): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+C:\Users\se\source\repos\0. Meshless_deformation\0216_Meshless_Deformation\0216 Meshless Deformation\main.cpp(118,18): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 MSVCRT.lib(initializers.obj) : warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  4 of 2070 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    3 functions were new in current compilation
+  2 of 2070 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
     57 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
