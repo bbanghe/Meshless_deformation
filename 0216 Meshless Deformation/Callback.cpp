@@ -66,10 +66,9 @@ extern glm::vec3 movePoint;
 extern bool push;
 extern bool moveObj;
 extern glm::vec3 movingPoint;
-
 extern glm::vec3 pullPoint;
 
-bool DepthLocked = true;
+bool depthLock = true;
 
 void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
     static double lastX = 0;
@@ -107,13 +106,14 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
             moveObj = false;
 
         if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-            if(DepthLocked == false){ //push
+            if(depthLock == true){ //push
+                std::tie(cursorPt3, cursorD) = get3DCursorPos(win, sz, vp, h);
+
                 if (cursorD != 1.0f && cursorPt3.y < 800 && cursorPt3.y > -800 ) {
-                    std::tie(cursorPt3, cursorD) = get3DCursorPos(win, sz, vp, h);
                     movePoint = cursorPt3;
                     depth = cursorD;
                     push = true;
-                    DepthLocked = true;
+                    depthLock = false;
                 }
             }else //drag
                 movingPoint = get3DCursorPos(win, depth, sz, vp, h);
@@ -123,7 +123,7 @@ void cursorPosCallback(GLFWwindow* win, double xpos, double ypos) {
             //pullPoint = 놓는 순간의 point 
             pullPoint = get3DCursorPos(win, depth, sz, vp, h);
             push = false;
-            DepthLocked = false;
+            depthLock = true;
         }
     }
 }

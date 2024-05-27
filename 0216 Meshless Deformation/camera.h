@@ -8,7 +8,7 @@ const float PI = 3.14159265358979f;
 struct Camera {
     float theta = 0;
     float phi = 0;
-    float distance = 5000; 
+    float distance = 3000; 
     float fovy = 30 * PI / 180;
 
     glm::mat4 getViewMat() {

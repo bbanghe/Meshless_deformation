@@ -49,8 +49,6 @@ extern glm::vec3 movePoint;
 extern glm::vec3 movingPoint;
 
 
-
-
 struct Mesh {
     GLuint vertexBuffer = 0;
     GLuint vertexArray = 0;
@@ -98,6 +96,7 @@ struct Mesh {
             weight_values[i] = vertices[i].weight;
         }
     }
+
     glm::vec3 optimalTranslation() {
         glm::vec3 Translation = glm::vec3(0.0f);
         glm::vec3 sumPosition = glm::vec3(0.0f);
@@ -127,7 +126,8 @@ struct Mesh {
     }
 
 
-    glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
+    glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, 
+        const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
 
         // 행렬 A 생성: 
         glm::mat3 A_pq(0.0f); //rotation
