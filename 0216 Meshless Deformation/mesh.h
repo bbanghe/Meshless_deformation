@@ -97,6 +97,19 @@ struct Mesh {
         }
     }
 
+    void updateVertexPosition() {
+        float minDistance = std::numeric_limits<float>::max();
+
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            float distance = glm::distance(vertices[i].Position, movePoint);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestVertexIndex = i;
+            }
+        }
+    }
+
+
     glm::vec3 optimalTranslation() {
         glm::vec3 Translation = glm::vec3(0.0f);
         glm::vec3 sumPosition = glm::vec3(0.0f);
@@ -113,47 +126,32 @@ struct Mesh {
         return Translation;
     }
 
-    void updateVertexPosition() {
-        float minDistance = std::numeric_limits<float>::max();
 
-        for (size_t i = 0; i < vertices.size(); ++i) {
-            float distance = glm::distance(vertices[i].Position, movePoint);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestVertexIndex = i;
-            }
-        }
-    }
-
-
-    glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, 
-        const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
+    glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
 
         // 행렬 A 생성: 
         glm::mat3 A_pq(0.0f); //rotation
         glm::mat3 A_qq(0.0f); //scaling
 
-        //1회만 계산해도 된다는 이점이 있다. 
-        if (calculateA_QQ == false) {
-            for (int i = 0; i < q.size(); ++i) {
-                A_qq += weights[i] * outerProduct(q[i], q[i]);
-            }
-            A_qq = glm::inverse(A_qq);
+        //A_qq 사전 계산 ㄱㄴ... 수정하면 좋을듯? 
+        for (int i = 0; i < q.size(); ++i) {
+            A_qq += weights[i] * outerProduct(q[i], q[i]);
         }
+        A_qq = glm::inverse(A_qq);
 
         for (int i = 0; i < q.size(); ++i) {
             A_pq += weights[i] * outerProduct(p[i], q[i]);
         }
 
         glm::mat3 A = A_pq * A_qq;
-        glm::mat3 Rotation = Rotation_Matrix(A_pq);
+        glm::mat3 Rotation = rotation_SVD(A_pq);
 
-        Rotation = Linear_deforamation(A, Rotation);
-        //Rotation = Quadratic_deformation(q, p, Rotation, weights);
+        //Rotation = Linear_deforamation(A, Rotation);
+        Rotation = Quadratic_deformation(p, q, Rotation, weights);
         return Rotation;
     }
 
-    glm::mat3 Rotation_Matrix(glm::mat3 A_pq) {
+    glm::mat3 rotation_SVD(glm::mat3 A_pq) {
         // SVD 적용
 
         //glm->Eigen 
@@ -190,6 +188,55 @@ struct Mesh {
 
         return Rotation;
     }
+
+    using Matrix9f = Eigen::Matrix<float, 9, 9>;
+    using Matrix3x9f = Eigen::Matrix<float, 3, 9>;
+    using Vector9f = Eigen::Matrix<float, 9, 1 >; //column vector
+
+    glm::mat3 Quadratic_deformation(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& q, glm::mat3 Rotation, const std::vector<float>& weights) {
+        float beta = 0.99f;
+
+        //q_tilde + A_qq_tilde 한번만 계산해도 ㅇㅋ
+        std::vector<Vector9f> q_tilde;
+        for (int i = 0; i < q.size(); ++i) {
+            Vector9f q_t;
+            q_t << q[i].x,          q[i].y,          q[i].z,
+                   q[i].x * q[i].x, q[i].y * q[i].y, q[i].z * q[i].z, 
+                   q[i].x * q[i].y, q[i].y * q[i].z, q[i].z * q[i].x;
+            q_tilde.push_back(q_t);
+        }
+        
+        //A_pq_tilde, A_qq_tilde 계산 후 A_tilde 구하기 
+        Matrix3x9f A_pq_tilde = Matrix3x9f::Zero();
+        Matrix9f   A_qq_tilde = Matrix9f::Zero();
+
+        for (int i = 0; i < q.size(); ++i) {
+            //glm -> eigen
+            Eigen::Vector3f p_eigen; 
+            p_eigen << p[i].x, p[i].y, p[i].z;
+
+            A_pq_tilde += weights[i] * p_eigen * q_tilde[i].transpose(); //  3X1 * 1X9  =  3X9
+            A_qq_tilde += weights[i] * q_tilde[i] * q_tilde[i].transpose(); //  9X1  * 1X9  = 9X9
+        }
+        A_qq_tilde = A_qq_tilde.inverse();
+
+        Matrix3x9f A_tilde = A_pq_tilde * A_qq_tilde; // 3X9 * 9X9  = 3X9
+
+        // 이게 맞는가...? 잘 모르겠음... 
+        glm::mat3 A, new_rotation;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                A[i][j] = A_tilde(i, j);
+            }
+        }
+
+        new_rotation = beta * A + (1 - beta) * Rotation;
+
+        return new_rotation;
+    }
+
+
+
 
     void update(const float& dt) {
 
