@@ -66,8 +66,6 @@ struct Mesh {
 
     glm::vec3 init_height = glm::vec3(0.0f, height, 0.0f);
 
-    bool calculateA_QQ = false;
-
     size_t closestVertexIndex = 0;
 
     const float springConstant = 0.00005f;
@@ -77,15 +75,16 @@ struct Mesh {
 
 
     //constructor
-    Mesh(const std::vector<Vertex>& _vertices, const std::vector<unsigned int>& _indices, const std::vector<Texture>& _textures) :vertices(_vertices), indices(_indices), textures(_textures) {
+    Mesh(const std::vector<Vertex>& _vertices, const std::vector<unsigned int>& _indices, const std::vector<Texture>& _textures) 
+        :vertices(_vertices), indices(_indices), textures(_textures) {
         velocity.resize(vertices.size(), glm::vec3(0));
         origin_point.resize(vertices.size());
         t_0 = optimalTranslation();
 
         for (int i = 0; i < vertices.size();i++) {
             origin_point[i] = vertices[i].Position;
-            //vertices[i].Position = rotate(-PI / 6.f, glm::vec3(0, 0, 1)) * glm::vec4(vertices[i].Position, 1);
-            vertices[i].Position += init_height; //duck : 600
+            vertices[i].Position = rotate(-PI / 6.f, glm::vec3(0, 0, 1)) * glm::vec4(vertices[i].Position, 1);
+            vertices[i].Position += init_height;
         }
 
         q_values.resize(vertices.size(), glm::vec3(0.0f));
@@ -115,7 +114,6 @@ struct Mesh {
         glm::vec3 sumPosition = glm::vec3(0.0f);
         float sumWeight = 0;
 
-
         for (int i = 0; i < vertices.size();i++) {
             sumPosition += vertices[i].weight * vertices[i].Position;
             sumWeight += vertices[i].weight;
@@ -128,34 +126,19 @@ struct Mesh {
 
 
     glm::mat3 optimalRotation(const std::vector<glm::vec3>& q, const std::vector<glm::vec3>& p, const std::vector<float>& weights) {
+        glm::mat3 Rotation;
 
-        // 행렬 A 생성: 
-        glm::mat3 A_pq(0.0f); //rotation
-        glm::mat3 A_qq(0.0f); //scaling
-
-        //A_qq 사전 계산 ㄱㄴ... 수정하면 좋을듯? 
-        for (int i = 0; i < q.size(); ++i) {
-            A_qq += weights[i] * outerProduct(q[i], q[i]);
-        }
-        A_qq = glm::inverse(A_qq);
-
-        for (int i = 0; i < q.size(); ++i) {
-            A_pq += weights[i] * outerProduct(p[i], q[i]);
-        }
-
-        glm::mat3 A = A_pq * A_qq;
-        glm::mat3 Rotation = rotation_SVD(A_pq);
-
-        //Rotation = Linear_deforamation(A, Rotation);
-        Rotation = Quadratic_deformation(p, q, Rotation, weights);
+        //Rotation = Linear_deforamation(p, q , weights);    
+        Rotation = Quadratic_deformation(p, q, weights);
+        
         return Rotation;
     }
 
-    glm::mat3 rotation_SVD(glm::mat3 A_pq) {
+    glm::mat3 glm_rotation_SVD(glm::mat3 A_pq) {
         // SVD 적용
 
         //glm->Eigen 
-        Eigen::Matrix3f A_pq_eigen, A_qq_eigen;
+        Eigen::Matrix3f A_pq_eigen;
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 A_pq_eigen(i, j) = A_pq[i][j];
@@ -179,7 +162,47 @@ struct Mesh {
         return Rotation;
     }
 
-    glm::mat3 Linear_deforamation(glm::mat3 A, glm::mat3 Rotation) {
+    glm::mat3 eigen_rotation_SVD(Eigen::Matrix3f A_pq) {
+        // SVD 적용
+
+
+        Eigen::JacobiSVD<Eigen::Matrix3f> svd(A_pq, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        Eigen::Matrix3f U = svd.matrixU();
+        Eigen::Matrix3f V = svd.matrixV();
+
+        // 회전 행렬 R 계산
+        Eigen::Matrix3f R_eigen = U * V.transpose();
+
+        //Eigen -> glm
+        glm::mat3 Rotation;
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                Rotation[i][j] = R_eigen(i, j);
+            }
+        }
+        return Rotation;
+    }
+
+
+    glm::mat3 Linear_deforamation(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& q, const std::vector<float>& weights) {
+
+        // 행렬 A 생성: 
+        glm::mat3 A_pq(0.0f);
+        glm::mat3 A_qq(0.0f);
+
+        //A_qq 사전 계산 ㄱㄴ... 나중에 수정 
+        for (int i = 0; i < q.size(); ++i) {
+            A_qq += weights[i] * outerProduct(q[i], q[i]);
+        }
+        A_qq = glm::inverse(A_qq);
+
+        for (int i = 0; i < q.size(); ++i) {
+            A_pq += weights[i] * outerProduct(p[i], q[i]);
+        }
+
+        glm::mat3 A = A_pq * A_qq;
+        glm::mat3 Rotation = glm_rotation_SVD(A_pq);
+
         float beta = 0.99f; //더 커지면 오류 발생... 
 
         float detA = glm::determinant(A);
@@ -193,17 +216,17 @@ struct Mesh {
     using Matrix3x9f = Eigen::Matrix<float, 3, 9>;
     using Vector9f = Eigen::Matrix<float, 9, 1 >; //column vector
 
-    glm::mat3 Quadratic_deformation(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& q, glm::mat3 Rotation, const std::vector<float>& weights) {
+    glm::mat3 Quadratic_deformation(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& q, const std::vector<float>& weights) {
         float beta = 0.99f;
 
         //q_tilde + A_qq_tilde 한번만 계산해도 ㅇㅋ
         std::vector<Vector9f> q_tilde;
         for (int i = 0; i < q.size(); ++i) {
-            Vector9f q_t;
-            q_t << q[i].x,          q[i].y,          q[i].z,
+            Vector9f q_i;
+            q_i << q[i].x,          q[i].y,          q[i].z,
                    q[i].x * q[i].x, q[i].y * q[i].y, q[i].z * q[i].z, 
                    q[i].x * q[i].y, q[i].y * q[i].z, q[i].z * q[i].x;
-            q_tilde.push_back(q_t);
+            q_tilde.push_back(q_i);
         }
         
         //A_pq_tilde, A_qq_tilde 계산 후 A_tilde 구하기 
@@ -212,27 +235,31 @@ struct Mesh {
 
         for (int i = 0; i < q.size(); ++i) {
             //glm -> eigen
-            Eigen::Vector3f p_eigen; 
-            p_eigen << p[i].x, p[i].y, p[i].z;
+            Eigen::Vector3f p_i;
+            p_i << p[i].x, p[i].y, p[i].z;
 
-            A_pq_tilde += weights[i] * p_eigen * q_tilde[i].transpose(); //  3X1 * 1X9  =  3X9
+            A_pq_tilde += weights[i] * p_i * q_tilde[i].transpose(); //  3X1 * 1X9  =  3X9
             A_qq_tilde += weights[i] * q_tilde[i] * q_tilde[i].transpose(); //  9X1  * 1X9  = 9X9
         }
         A_qq_tilde = A_qq_tilde.inverse();
 
         Matrix3x9f A_tilde = A_pq_tilde * A_qq_tilde; // 3X9 * 9X9  = 3X9
+        Eigen::Matrix3f A_pq_svd = A_pq_tilde.block<3, 3>(0, 0); // A_pq의 첫 번째 3x3 블록을 추출
 
-        // 이게 맞는가...? 잘 모르겠음... 
-        glm::mat3 A, new_rotation;
+        glm::mat3 Rotation = eigen_rotation_SVD(A_pq_svd);
+        glm::mat3 A;
+
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 A[i][j] = A_tilde(i, j);
             }
         }
 
-        new_rotation = beta * A + (1 - beta) * Rotation;
+        float detA = glm::determinant(A);
+        A /= pow(detA, 1.0 / 3.0);
+        Rotation = beta * A + (1 - beta) * Rotation;
 
-        return new_rotation;
+        return Rotation;
     }
 
 
